@@ -1,0 +1,3546 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil Matemático - Modo Apresentação</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .tela {
+            display: none;
+            min-height: 100vh;
+            padding: 15px;
+        }
+
+        .tela.ativa {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            max-width: 1100px;
+            width: 100%;
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 2em;
+        }
+
+        h2 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 12px;
+            font-size: 1.5em;
+        }
+
+        /* Modal de Seleção de Categoria */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.ativa {
+            display: flex;
+        }
+
+        .modal-conteudo {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .modal h3 {
+            margin-bottom: 20px;
+            color: #4a5568;
+            font-size: 1.4em;
+        }
+
+        .categorias-modal {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn-categoria-modal {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-categoria-modal:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-categoria-modal.esgotada {
+            background: #cbd5e0;
+            color: #718096;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-fechar-modal {
+            background: #718096;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        /* Tela Configuração Compacta */
+        .config-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 15px;
+        }
+
+        .config-selects {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .config-selects select {
+            padding: 10px;
+            border: 2px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+
+        .config-equipes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin: 15px 0;
+        }
+
+        .equipe-config {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px dashed #cbd5e0;
+        }
+
+        .equipe-config h3 {
+            margin-bottom: 10px;
+            color: #4a5568;
+            font-size: 1em;
+        }
+
+        .input-equipe {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+
+        .cor-equipe {
+            width: 100%;
+            height: 35px;
+            border: 2px solid #cbd5e0;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .btn-adicionar-equipe {
+            background: #edf2f7;
+            border: 2px dashed #cbd5e0;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #718096;
+        }
+
+        .btn-adicionar-equipe:hover {
+            background: #e2e8f0;
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .btn-adicionar-equipe .icone {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .btn-principal {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-size: 1.1em;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            transition: background 0.3s;
+        }
+
+        .btn-principal:hover {
+            background: #38a169;
+        }
+
+        /* Tela do Jogo - Layout Compacto */
+        .layout-apresentacao {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 20px;
+            height: 100%;
+        }
+
+        /* Área Principal - Cartas e Dicas Compacta */
+        .area-principal {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .carta-apresentacao {
+            position: relative;
+        }
+
+        .categoria-indicator {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .categoria-numeros {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+        }
+
+        .categoria-algebra {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+        }
+
+        .categoria-geometria {
+            background: linear-gradient(135deg, #9f7aea, #805ad5);
+        }
+
+        .categoria-trigonometria {
+            background: linear-gradient(135deg, #ed8936, #dd6b20);
+        }
+
+        .categoria-historia {
+            background: linear-gradient(135deg, #ecc94b, #d69e2e);
+        }
+
+        .categoria-aleatoria {
+            background: linear-gradient(135deg, #ed64a6, #d53f8c);
+        }
+
+        .carta-apresentacao h3 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+
+        .dicas-apresentacao {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .dica-apresentacao {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s;
+            border: 2px solid #e2e8f0;
+            min-height: 55px;
+            display: flex;
+            align-items: center;
+            font-size: 0.95em;
+        }
+
+        .dica-apresentacao.revelada {
+            background: #c6f6d5;
+            border-left-color: #48bb78;
+        }
+
+        .dica-apresentacao.bloqueada {
+            background: #f7fafc;
+            color: #a0aec0;
+            border-left-color: #cbd5e0;
+        }
+
+        .dica-apresentacao.atual {
+            background: #bee3f8;
+            border-left-color: #3182ce;
+            animation: pulsar 2s infinite;
+            font-weight: bold;
+        }
+
+        .dica-numero {
+            font-weight: bold;
+            margin-right: 10px;
+            color: #4a5568;
+            min-width: 25px;
+            font-size: 0.95em;
+        }
+
+        /* Área de Tentativa de Resposta Compacta */
+        .area-resposta {
+            background: #edf2f7;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 2px solid #e2e8f0;
+        }
+
+        .input-resposta {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+
+        .btn-tentar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .btn-tentar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .resultado-tentativa {
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1em;
+            display: none;
+        }
+
+        .resultado-correto {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 2px solid #48bb78;
+            display: block;
+        }
+
+        .resultado-incorreto {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 2px solid #e53e3e;
+            display: block;
+        }
+
+        /* Área Lateral Compacta */
+        .area-lateral {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Placar Compacto */
+        .placar-equipes {
+            background: #2d3748;
+            border-radius: 12px;
+            padding: 15px;
+            color: white;
+        }
+
+        .placar-equipes h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #e2e8f0;
+            font-size: 1.2em;
+        }
+
+        .lista-equipes {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .equipe-placar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .equipe-placar.ativa {
+            background: rgba(74, 222, 128, 0.3);
+            transform: scale(1.02);
+            border: 2px solid #48bb78;
+        }
+
+        .equipe-placar:hover:not(.ativa) {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.01);
+        }
+
+        .info-equipe {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cor-marcador {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .nome-equipe {
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+
+        .pontos-equipe {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #48bb78;
+        }
+
+        .btn-editar-placar {
+            background: #ecc94b;
+            color: #744210;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            margin-left: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn-editar-placar:hover {
+            background: #d69e2e;
+            transform: scale(1.05);
+        }
+
+        /* Controles do Professor Compactos */
+        .controles-professor {
+            background: #edf2f7;
+            border-radius: 12px;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .controles-professor h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #4a5568;
+            font-size: 1.2em;
+        }
+
+        .time-atual {
+            text-align: center;
+            background: #bee3f8;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 2px solid #3182ce;
+            font-weight: bold;
+            font-size: 1em;
+        }
+
+        .acoes-professor {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .btn-acao-prof {
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-weight: bold;
+        }
+
+        .btn-dica-prof {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-revelar-resposta {
+            background: linear-gradient(135deg, #ed8936, #dd6b20);
+            color: white;
+        }
+
+        .btn-transferir {
+            background: linear-gradient(135deg, #805ad5, #6b46c1);
+            color: white;
+        }
+
+        .btn-proxima {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+        }
+
+        .btn-acao-prof:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .btn-acao-prof:disabled {
+            background: #cbd5e0;
+            color: #718096;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Resposta Revelada Compacta */
+        .resposta-revelada {
+            background: linear-gradient(135deg, #f6e05e, #d69e2e);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 12px 0;
+            border: 2px solid #ecc94b;
+            text-align: center;
+            display: none;
+        }
+
+        .resposta-revelada.ativa {
+            display: block;
+        }
+
+        .resposta-revelada h4 {
+            color: #744210;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .resposta-correta {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #744210;
+        }
+
+        /* Tela de Resultado Final Compacta */
+        .resultado-final {
+            text-align: center;
+        }
+
+        .vencedor {
+            background: linear-gradient(135deg, #f6e05e, #d69e2e);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+            border: 3px solid #ecc94b;
+        }
+
+        .vencedor h2 {
+            color: #744210;
+            font-size: 1.8em;
+            margin-bottom: 8px;
+        }
+
+        .pontuacao-vencedor {
+            font-size: 2.2em;
+            color: #744210;
+            font-weight: bold;
+        }
+
+        .classificacao {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .posicao {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .posicao.primeiro {
+            background: linear-gradient(135deg, #f6e05e, #d69e2e);
+            border-color: #ecc94b;
+        }
+
+        .posicao.segundo {
+            background: linear-gradient(135deg, #e2e8f0, #cbd5e0);
+            border-color: #a0aec0;
+        }
+
+        .posicao.terceiro {
+            background: linear-gradient(135deg, #ed8936, #dd6b20);
+            border-color: #ed8936;
+        }
+
+        /* Botões de Exportação */
+        .botoes-exportacao {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .btn-exportar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-exportar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-pdf {
+            background: linear-gradient(135deg, #e53e3e, #c53030);
+        }
+
+        .btn-excel {
+            background: linear-gradient(135deg, #38a169, #2f855a);
+        }
+
+        /* Modal Edição Placar */
+        .modal-edicao-placar {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-edicao-placar.ativa {
+            display: flex;
+        }
+
+        .modal-edicao-conteudo {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .modal-edicao-conteudo h3 {
+            margin-bottom: 20px;
+            color: #4a5568;
+            font-size: 1.3em;
+        }
+
+        .info-equipe-edicao {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .input-pontos {
+            width: 100px;
+            padding: 10px;
+            border: 2px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 1.1em;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .botoes-edicao {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-confirmar {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .btn-cancelar {
+            background: #718096;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        /* Controles de Som */
+        .controles-som {
+            background: #2d3748;
+            border-radius: 12px;
+            padding: 15px;
+            color: white;
+            margin-top: 15px;
+        }
+
+        .controles-som h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #e2e8f0;
+            font-size: 1.1em;
+        }
+
+        .botoes-som {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .btn-som {
+            background: #4a5568;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .btn-som:hover {
+            background: #718096;
+        }
+
+        .btn-som.ativo {
+            background: #48bb78;
+        }
+
+        /* Animações */
+        @keyframes pulsar {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.01); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes revelar {
+            0% { transform: translateX(-15px); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+
+        .dica-revelada {
+            animation: revelar 0.4s ease-out;
+        }
+
+        @keyframes acerto {
+            0% { background-color: #48bb78; }
+            50% { background-color: #68d391; }
+            100% { background-color: #48bb78; }
+        }
+
+        @keyframes erro {
+            0% { background-color: #e53e3e; }
+            50% { background-color: #fc8181; }
+            100% { background-color: #e53e3e; }
+        }
+
+        /* Responsividade para telas menores */
+        @media (max-width: 1024px) {
+            .layout-apresentacao {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .container {
+                margin: 10px;
+                padding: 15px;
+                max-height: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.6em;
+            }
+            
+            .config-equipes {
+                grid-template-columns: 1fr;
+            }
+            
+            .config-header {
+                flex-direction: column;
+            }
+            
+            .config-selects {
+                grid-template-columns: 1fr;
+            }
+            
+            .categorias-modal {
+                grid-template-columns: 1fr;
+            }
+            
+            .botoes-exportacao {
+                grid-template-columns: 1fr;
+            }
+            
+            .botoes-som {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Modal de Seleção de Categoria -->
+    <div id="modalCategoria" class="modal">
+        <div class="modal-conteudo">
+            <h3>🎯 ESCOLHA A CATEGORIA DA PRÓXIMA CARTA</h3>
+            <div class="categorias-modal">
+                <button class="btn-categoria-modal" data-categoria="numeros">🔢 NÚMEROS</button>
+                <button class="btn-categoria-modal" data-categoria="algebra">📐 ÁLGEBRA</button>
+                <button class="btn-categoria-modal" data-categoria="geometria">📏 GEOMETRIA</button>
+                <button class="btn-categoria-modal" data-categoria="trigonometria">📊 TRIGONOMETRIA</button>
+                <button class="btn-categoria-modal" data-categoria="historia">📜 HISTÓRIA</button>
+                <button class="btn-categoria-modal" data-categoria="aleatoria">🎲 ALEATÓRIA</button>
+            </div>
+            <button id="btnFecharModal" class="btn-fechar-modal">FECHAR</button>
+        </div>
+    </div>
+
+    <!-- Modal de Edição do Placar -->
+    <div id="modalEdicaoPlacar" class="modal-edicao-placar">
+        <div class="modal-edicao-conteudo">
+            <h3>✏️ EDITAR PONTUAÇÃO</h3>
+            <div id="infoEquipeEdicao" class="info-equipe-edicao">
+                <!-- Conteúdo dinâmico -->
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #4a5568;">Nova Pontuação:</label>
+                <input type="number" id="inputNovosPontos" class="input-pontos" min="0" value="0">
+            </div>
+            <div class="botoes-edicao">
+                <button id="btnConfirmarEdicao" class="btn-confirmar">✅ CONFIRMAR</button>
+                <button id="btnCancelarEdicao" class="btn-cancelar">❌ CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tela de Configuração Compacta -->
+    <div id="telaConfiguracao" class="tela ativa">
+        <div class="container">
+            <h1>🎯 PERFIL MATEMÁTICO - MODO APRESENTAÇÃO</h1>
+            
+            <div class="config-header">
+                <div class="config-selects">
+                    <select id="selectCategoria">
+                        <option value="numeros">🔢 NÚMEROS</option>
+                        <option value="algebra">📐 ÁLGEBRA</option>
+                        <option value="geometria">📏 GEOMETRIA</option>
+                        <option value="trigonometria">📊 TRIGONOMETRIA</option>
+                        <option value="historia">📜 HISTÓRIA</option>
+                        <option value="aleatoria">🎲 ALEATÓRIA</option>
+                    </select>
+                    
+                    <select id="selectRodadas">
+                        <option value="5">5 Rodadas</option>
+                        <option value="10" selected>10 Rodadas</option>
+                        <option value="15">15 Rodadas</option>
+                        <option value="20">20 Rodadas</option>
+                        <option value="25">25 Rodadas</option>
+                        <option value="30">30 Rodadas</option>
+                        <option value="35">35 Rodadas</option>
+                        <option value="40">40 Rodadas</option>
+                        <option value="45">45 Rodadas</option>
+                        <option value="50">50 Rodadas</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="config-equipes" id="containerEquipes">
+                <!-- Equipes serão adicionadas dinamicamente -->
+            </div>
+
+            <button id="btnIniciarApresentacao" class="btn-principal">🎮 INICIAR MODO APRESENTAÇÃO</button>
+        </div>
+    </div>
+
+    <!-- Tela do Jogo - Modo Apresentação Compacto -->
+    <div id="telaApresentacao" class="tela">
+        <div class="container">
+            <div class="layout-apresentacao">
+                <!-- Área Principal - Cartas -->
+                <div class="area-principal">
+                    <div class="carta-apresentacao">
+                        <!-- INDICADOR DE CATEGORIA NOVO -->
+                        <div id="categoriaIndicator" class="categoria-indicator categoria-numeros">
+                            <span id="categoriaIcone">🔢</span>
+                            <span id="categoriaNome">NÚMEROS</span>
+                        </div>
+                        
+                        <h3 id="tituloCarta">EU SOU...</h3>
+                        <div id="dicasContainer" class="dicas-apresentacao">
+                            <!-- Dicas serão geradas pelo JavaScript -->
+                        </div>
+
+                        <!-- Área de Tentativa de Resposta -->
+                        <div class="area-resposta">
+                            <input type="text" id="inputResposta" class="input-resposta" placeholder="Digite a resposta da equipe...">
+                            <button id="btnTentarResposta" class="btn-tentar">🎯 TENTAR RESPOSTA</button>
+                            <div id="resultadoTentativa" class="resultado-tentativa"></div>
+                        </div>
+
+                        <!-- Resposta Revelada -->
+                        <div id="respostaRevelada" class="resposta-revelada">
+                            <h4>RESPOSTA CORRETA:</h4>
+                            <div id="respostaCorreta" class="resposta-correta">TRIÂNGULO</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Área Lateral - Placar e Controles -->
+                <div class="area-lateral">
+                    <!-- Placar -->
+                    <div class="placar-equipes">
+                        <h3>🏆 PLACAR AO VIVO</h3>
+                        <div id="listaPlacar" class="lista-equipes">
+                            <!-- Equipes serão geradas pelo JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Controles do Professor -->
+                    <div class="controles-professor">
+                        <h3>👨‍🏫 CONTROLES</h3>
+                        
+                        <div id="timeAtual" class="time-atual">
+                            Time Alpha
+                        </div>
+
+                        <div class="acoes-professor">
+                            <!-- NOVO BOTÃO: Transferência Voluntária -->
+                            <button id="btnTransferirVoluntariamente" class="btn-acao-prof btn-transferir">
+                                🔄 TRANSFERIR QUESTÃO
+                            </button>
+
+                            <button id="btnProximaDica" class="btn-acao-prof btn-dica-prof">
+                                💡 PRÓXIMA DICA
+                            </button>
+
+                            <button id="btnRevelarResposta" class="btn-acao-prof btn-revelar-resposta">
+                                🔓 REVELAR RESPOSTA
+                            </button>
+
+                            <button id="btnTransferir" class="btn-acao-prof btn-transferir" style="display: none;">
+                                🔄 TRANSFERIR PERGUNTA
+                            </button>
+
+                            <button id="btnProximaCarta" class="btn-acao-prof btn-proxima">
+                                ➡️ PRÓXIMA CARTA
+                            </button>
+
+                            <button id="btnFinalizarJogo" class="btn-acao-prof" style="background: #718096; color: white;">
+                                🏁 FINALIZAR
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- NOVA SEÇÃO: Controles de Som -->
+                    <div class="controles-som">
+                        <h3>🎵 CONTROLES DE SOM</h3>
+                        <div class="botoes-som">
+                            <button id="btnAtivarSons" class="btn-som ativo">🔊 SONS ATIVOS</button>
+                            <button id="btnDesativarSons" class="btn-som">🔇 SILENCIAR</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tela de Resultado Final Compacta -->
+    <div id="telaResultadoFinal" class="tela">
+        <div class="container">
+            <div class="resultado-final">
+                <h1>🎉 JOGO FINALIZADO!</h1>
+                
+                <div id="areaVencedor" class="vencedor">
+                    <h2 id="nomeVencedor">TIME ALPHA</h2>
+                    <div class="pontuacao-vencedor" id="pontuacaoVencedor">250 PONTOS</div>
+                </div>
+
+                <h2>🏅 CLASSIFICAÇÃO FINAL</h2>
+                <div id="classificacaoFinal" class="classificacao">
+                    <!-- Classificação será gerada pelo JavaScript -->
+                </div>
+
+                <!-- BOTÕES DE EXPORTAÇÃO -->
+                <div class="botoes-exportacao">
+                    <button id="btnExportarPDF" class="btn-exportar btn-pdf">
+                        📄 EXPORTAR PDF
+                    </button>
+                    <button id="btnExportarExcel" class="btn-exportar btn-excel">
+                        📊 EXPORTAR EXCEL
+                    </button>
+                </div>
+
+                <button id="btnNovoJogo" class="btn-principal">🔄 NOVO JOGO</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BIBLIOTECAS PARA EXPORTAÇÃO -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        // BANCO COMPLETO DE CARTAS - 100 QUESTÕES!
+        const cartasPorCategoria = {
+            numeros: [
+                {
+                    resposta: "MMC",
+                    dicas: [
+                        "Relação entre 2 ou mais números",
+                        "Menor fator de 2 números",
+                        "Entre 3 e 4, eu sou o 12",
+                        "Em (1/3 + 1/5), sou o 15",
+                        "Sou descoberto pela fatoração",
+                        "Sou usado na operação de frações",
+                        "Sou dito em sigla",
+                        "Em geral sou denominador"
+                    ]
+                },
+                {
+                    resposta: "MDC",
+                    dicas: [
+                        "Maior fator de 2 números",
+                        "Sou descoberto pela fatoração",
+                        "Entre (10,15,25,35) eu sou 5",
+                        "Sou dito em sigla",
+                        "Me estudo junto com MMC",
+                        "Relação entre 2 ou mais números",
+                        "Entre 12 e 18, eu sou o 6",
+                        "Usado para achar o divisor comum"
+                    ]
+                },
+                {
+                    resposta: "ZERO",
+                    dicas: [
+                        "Não tenho valor",
+                        "Multiplicando comigo se anulam",
+                        "Números negativos me têm",
+                        "Sou elemento neutro da adição",
+                        "Na reta estou entre -1 e 1",
+                        "Geralmente sou a origem",
+                        "Sou par",
+                        "Dividindo por mim dá erro"
+                    ]
+                },
+                {
+                    resposta: "PAR",
+                    dicas: [
+                        "Formo dupla",
+                        "Tem um de mim nos primos",
+                        "O 34 faz parte de mim",
+                        "Não sou ímpar",
+                        "Sou um grupo de números",
+                        "Formo um casal",
+                        "O 27 não está em mim",
+                        "(2, 4, 6, 8, 10, 12, ...)"
+                    ]
+                },
+                {
+                    resposta: "IMPAR",
+                    dicas: [
+                        "Posso ser sozinho",
+                        "Não sou par",
+                        "Formo trio",
+                        "Sou quase todos os primos",
+                        "(1, 3, 5, 7, 9, 11, ...)",
+                        "Sou um grupo de números",
+                        "O dois não está em mim",
+                        "O 379 está em mim"
+                    ]
+                },
+                {
+                    resposta: "PRIMO",
+                    dicas: [
+                        "MDC (a,b) = 1",
+                        "Possuo somente dois divisores",
+                        "(2,3,5,7,11,13,...)",
+                        "Sou um grupo numérico",
+                        "Sou usado para fatorar",
+                        "Tenho um número par",
+                        "Sou quase todo ímpar",
+                        "Divido por 1 e eu mesmo"
+                    ]
+                },
+                {
+                    resposta: "DECIMAL",
+                    dicas: [
+                        "Posso ser exato",
+                        "Não sou Natural",
+                        "Posso ser escrito em fração",
+                        "Sou Racional",
+                        "Tenho vírgula",
+                        "Posso ser não exato",
+                        "Posso ter casas decimais",
+                        "Sou um tipo de numero"
+                    ]
+                },
+                {
+                    resposta: "NATURAL",
+                    dicas: [
+                        "Tenho apenas números positivos",
+                        "Sou um conjunto",
+                        "Não tenho decimais",
+                        "Não posso ser negativo",
+                        "Sou um grupo de números",
+                        "Estou nos Reais",
+                        "Não tenho negativos",
+                        "Estou do lado direito do zero na reta numérica"
+                    ]
+                },
+                {
+                    resposta: "INTEIRO",
+                    dicas: [
+                        "(..., -2, -1, 0, 1, 2, ...)",
+                        "Sou positivo",
+                        "A letra Z me representa",
+                        "Não estou nos Naturais",
+                        "Sou negativo",
+                        "Estou nos Reais",
+                        "Estou nos Racionais",
+                        "Tenho todos os Naturais em meu conjunto"
+                    ]
+                },
+                {
+                    resposta: "RACIONAL",
+                    dicas: [
+                        "Sou inteiro",
+                        "Posso ser escrito em forma de fração",
+                        "Sou Natural",
+                        "Sou um conjunto numérico",
+                        "Sou decimais finitos",
+                        "Sou frações",
+                        "Sou dízimas periódicas",
+                        "O símbolo Q me representa"
+                    ]
+                },
+                {
+                    resposta: "DEZENA",
+                    dicas: [
+                        "Em anos sou uma década",
+                        "Não sou centena",
+                        "Posso ser militar",
+                        "Meio de mim é 5",
+                        "Sou um grupo de unidades",
+                        "Sou 10 unidades",
+                        "Sou um 3 de mim",
+                        "Sou estudado com material dourado"
+                    ]
+                },
+                {
+                    resposta: "CENTENA",
+                    dicas: [
+                        "Posso ser militar",
+                        "Sou 10 dezenas",
+                        "Em grupo de 100 minutos",
+                        "Em ano 200 minutos",
+                        "Em ano 500 minutos",
+                        "Sou 100 unidades",
+                        "Em 20 de minuto",
+                        "Sou o quadrado no material dourado"
+                    ]
+                },
+                {
+                    resposta: "ANTECESSOR",
+                    dicas: [
+                        "Sou aquele que vem antes",
+                        "Expresso ordem",
+                        "Sou o 27 do 28",
+                        "Sou o número anterior",
+                        "Falam que sou ancestral",
+                        "Na reta numérica estou a esquerda do número analisado",
+                        "Sou 'ex' do atual",
+                        "Sou estudado na pré-escola"
+                    ]
+                },
+                {
+                    resposta: "SUCESSOR",
+                    dicas: [
+                        "Sou o próximo número",
+                        "Falam que sou herdeiro",
+                        "Sou estudado na pré-escola",
+                        "Sou 'pós' do atual",
+                        "Sou aquele que vem depois",
+                        "Expresso ordem",
+                        "Sou o 32 do 31",
+                        "Na reta numérica estou a direita do número analisado"
+                    ]
+                },
+                {
+                    resposta: "ORDEM CRESCENTE",
+                    dicas: [
+                        "Eu cresço",
+                        "Sou fase da lua",
+                        "Aumento gradativamente",
+                        "Coloco em ordem",
+                        "Sou progressivo",
+                        "(25, 30, 35, 40, 45)",
+                        "Represento ordem",
+                        "Sou crescimento"
+                    ]
+                },
+                {
+                    resposta: "ORDEM DECRESCENTE",
+                    dicas: [
+                        "Coloco em ordem",
+                        "(80, 70, 60, 50, 40, 30)",
+                        "Represento ordem",
+                        "Na lua sou minguante",
+                        "Eu diminuo",
+                        "Diminuo gradativamente",
+                        "Sou retrógrado",
+                        "Sou do maior para o menor"
+                    ]
+                },
+                {
+                    resposta: "DOBRO",
+                    dicas: [
+                        "Não sou triplo",
+                        "Sou numeral multiplicativo",
+                        "Sou multiplicação",
+                        "Múltiplo de 2",
+                        "Sou uma relação por 2",
+                        "Duas vezes a mesma quantidade",
+                        "Quantidade maior",
+                        "João tem 10 e Maria 5"
+                    ]
+                },
+                {
+                    resposta: "TRIPLO",
+                    dicas: [
+                        "Sou uma relação por 3",
+                        "Não sou dobro",
+                        "Múltiplo por 3",
+                        "Sou multiplicação",
+                        "Quantidade maior",
+                        "Sou numeral multiplicativo",
+                        "Bruno tem 27 e Lucas 9",
+                        "Três vezes a mesma quantidade"
+                    ]
+                },
+                {
+                    resposta: "METADE",
+                    dicas: [
+                        "Represento ½",
+                        "Oposto de dobro",
+                        "Porção igual a uma outra, obtida pela divisão de um todo",
+                        "De 12 eu sou o 6",
+                        "Muitos me chamam de 'meia' (Meia hora, meia dúzia)",
+                        "Represento 5/10",
+                        "Sou o raio do diâmetro",
+                        "De 30 eu sou 15"
+                    ]
+                },
+                {
+                    resposta: "MÓDULO",
+                    dicas: [
+                        "Posso ser magnitude",
+                        "Sou valor real",
+                        "Desconsidero o sinal",
+                        "Sou sempre positivo",
+                        "Sou valor absoluto",
+                        "Sou valor numérico",
+                        "Não sou negativo",
+                        "Posso ser a distância de um ponto até a origem"
+                    ]
+                }
+            ],
+
+            algebra: [
+                {
+                    resposta: "ADIÇÃO",
+                    dicas: [
+                        "Sou contar",
+                        "Me chamam de 'mais'",
+                        "Oposto de subtração",
+                        "Me chamam de 'soma'",
+                        "Elemento neutro é zero",
+                        "56 + 72 = 128",
+                        "Sou uma operação matemática",
+                        "Matemática básica"
+                    ]
+                },
+                {
+                    resposta: "SUBTRAÇÃO",
+                    dicas: [
+                        "Um símbolo me representa",
+                        "Sou da matemática básica",
+                        "Sou menos",
+                        "Tenho minuendo",
+                        "Eu tiro uma quantidade",
+                        "Tenho subtraendo",
+                        "Sou uma operação básica",
+                        "Minha resposta é o resto"
+                    ]
+                },
+                {
+                    resposta: "MULTIPLICAÇÃO",
+                    dicas: [
+                        "Sou um tipo de conta",
+                        "Me chamam de 'vezes'",
+                        "Oposto de divisão",
+                        "(x) me representa",
+                        "(·) me representa",
+                        "5 x 10 = 50",
+                        "Sou uma operação matemática",
+                        "Estou na matemática básica e aplicada"
+                    ]
+                },
+                {
+                    resposta: "DIVISÃO",
+                    dicas: [
+                        "Sou operação fundamental",
+                        "Não sou multiplicação",
+                        "Sou fração",
+                        "Não sou subtração",
+                        "Meu oposto é multiplicação",
+                        "Não sou adição",
+                        "Tenho divisor",
+                        "Tenho dividendo"
+                    ]
+                },
+                {
+                    resposta: "VETOR",
+                    dicas: [
+                        "Represento força",
+                        "Elemento da geometria analítica",
+                        "Segmento de reta orientado",
+                        "Estou na física",
+                        "Estou na matemática",
+                        "Represento módulo, direção e sentido",
+                        "Sou uma grandeza vetorial",
+                        "Uma seta me representa"
+                    ]
+                },
+                {
+                    resposta: "MATRIZ",
+                    dicas: [
+                        "Sou do tipo A m x n",
+                        "Letra maiúscula me representa",
+                        "Tenho linhas",
+                        "Sou uma tabela organizada",
+                        "Resolvo sistemas",
+                        "m são minhas linhas",
+                        "Tenho colunas",
+                        "n são minhas colunas"
+                    ]
+                },
+                {
+                    resposta: "SISTEMA",
+                    dicas: [
+                        "Posso ser de equações",
+                        "Posso ser um grupo de medidas",
+                        "Sou um grupo específico",
+                        "Sou o resultado da junção de elementos",
+                        "Na equação posso ser escrito em chaves",
+                        "Sou um conjunto de elementos",
+                        "Posso ser concreto ou abstrato",
+                        "Alguns lutam contra mim"
+                    ]
+                },
+                {
+                    resposta: "MAIS",
+                    dicas: [
+                        "Eu somo",
+                        "Posso ser representado por um sinal",
+                        "Estou no português",
+                        "Sou adição",
+                        "Sinônimo de excesso",
+                        "Maior do que era",
+                        "Sou oposto de menos",
+                        "Sou diferente de mas"
+                    ]
+                },
+                {
+                    resposta: "MENOS",
+                    dicas: [
+                        "Sou subtração",
+                        "Eu tiro",
+                        "Sou oposto de mais",
+                        "Expresso quantidade",
+                        "Posso ser representado por um sinal",
+                        "Quantidade menor que outra",
+                        "Eu subtraio",
+                        "Intensidade reduzida"
+                    ]
+                },
+                {
+                    resposta: "IGUALDADE",
+                    dicas: [
+                        "Sou representado por um símbolo",
+                        "Sou uma relação",
+                        "'4 x 5 = 2 x 10'",
+                        "Mostro que o resultado é igual a operação",
+                        "Estou nas operações",
+                        "'=' me representa",
+                        "'x = y' logo x e y tem uma relação de igualdade",
+                        "Sou oposto de diferente"
+                    ]
+                },
+                {
+                    resposta: "SINAL",
+                    dicas: [
+                        "Posso ser soma (+)",
+                        "Posso ser igualdade (=)",
+                        "Posso ser divisão (÷) e (/)",
+                        "Posso ser (.), (*) ou (x)",
+                        "Sou símbolo da matemática",
+                        "Posso ser porcentagem (%)",
+                        "Posso ser subtração (-)",
+                        "Posso ser dinheiro ($)"
+                    ]
+                },
+                {
+                    resposta: "VALOR",
+                    dicas: [
+                        "'Vale o valor de x'",
+                        "Posso ser absoluto",
+                        "Sou a quantidade do número",
+                        "Posso ser determinado pela resolução do problema",
+                        "Posso ser relativo",
+                        "Em vista de seu colecionável",
+                        "No concreto eu sou fixo",
+                        "Represento importância numérica"
+                    ]
+                },
+                {
+                    resposta: "VARIÁVEL",
+                    dicas: [
+                        "Sou representada por letras",
+                        "Meu valor pode mudar",
+                        "Estou nas equações",
+                        "Sou incógnita",
+                        "Posso ser x, y, z",
+                        "Sou elemento fundamental da álgebra",
+                        "Represento quantidades desconhecidas",
+                        "Me estudo com constantes"
+                    ]
+                },
+                {
+                    resposta: "EQUAÇÃO",
+                    dicas: [
+                        "Tenho igualdade",
+                        "Possuo incógnitas",
+                        "Busco solução",
+                        "Sou uma expressão matemática",
+                        "Posso ser do 1º grau",
+                        "Posso ser do 2º grau",
+                        "Resolvo problemas",
+                        "Tenho membros e termos"
+                    ]
+                },
+                {
+                    resposta: "EXPRESSÃO",
+                    dicas: [
+                        "Sou combinação de números e operações",
+                        "Posso ser numérica",
+                        "Posso ser algébrica",
+                        "Tenho valor calculável",
+                        "Sou sequência de operações",
+                        "Posso conter variáveis",
+                        "Sou fundamental na matemática",
+                        "Preciso ser simplificada"
+                    ]
+                },
+                {
+                    resposta: "FUNÇÃO",
+                    dicas: [
+                        "Relaciono conjuntos",
+                        "Tenho domínio e contradomínio",
+                        "Posso ser afim",
+                        "Posso ser quadrática",
+                        "Sou regra de associação",
+                        "Cada x tem um y",
+                        "Represento relações",
+                        "Me estudo com gráficos"
+                    ]
+                },
+                {
+                    resposta: "POTÊNCIA",
+                    dicas: [
+                        "Sou multiplicação repetida",
+                        "Tenho base e expoente",
+                        "2³ = 8",
+                        "Sou notação científica",
+                        "Simplifico multiplicações",
+                        "Posso ser quadrado ou cubo",
+                        "Tenho propriedades específicas",
+                        "Sou fundamental na álgebra"
+                    ]
+                },
+                {
+                    resposta: "RAIZ",
+                    dicas: [
+                        "Sou operação inversa da potência",
+                        "√4 = 2",
+                        "Posso ser quadrada",
+                        "Posso ser cúbica",
+                        "Encontro o número original",
+                        "Sou radiciação",
+                        "Tenho radical e índice",
+                        "Simplifico expressões"
+                    ]
+                },
+                {
+                    resposta: "LOGARITMO",
+                    dicas: [
+                        "Sou expoente de uma elevação",
+                        "Sou uma expressão",
+                        "Posso ser representado por uma sigla",
+                        "'1000 na base 10 é 3'",
+                        "Minha função inversa é a função exponencial",
+                        "Posso ser comum (base 10)",
+                        "Posso ser neperiano",
+                        "Sou uma operação matemática diretamente relacionada com as equações exponenciais"
+                    ]
+                },
+                {
+                    resposta: "POLINÔMIO",
+                    dicas: [
+                        "Sou expressão com vários termos",
+                        "Tenho coeficientes e variáveis",
+                        "Posso ser do 1º grau, 2º grau, etc",
+                        "ax² + bx + c é meu formato clássico",
+                        "Sou fundamental na álgebra",
+                        "Tenho raízes",
+                        "Posso ser fatorado",
+                        "Represento funções matemáticas"
+                    ]
+                }
+            ],
+
+            geometria: [
+                {
+                    resposta: "TRIÂNGULO",
+                    dicas: [
+                        "Sou uma forma geométrica",
+                        "Tenho 3 lados",
+                        "Tenho 3 ângulos internos",
+                        "Posso ser equilátero",
+                        "Pode ser usado a² + b² = c² em mim",
+                        "Tenho 2 catetos",
+                        "Posso ter uma hipotenusa",
+                        "A soma dos meus ângulos internos é sempre 180°"
+                    ]
+                },
+                {
+                    resposta: "CÍRCULO",
+                    dicas: [
+                        "Meu contorno é uma circunferência",
+                        "Existem várias cordas em mim",
+                        "Não tenho vértices",
+                        "Tenho diâmetro",
+                        "Sou uma forma geométrica",
+                        "Tenho raio",
+                        "Não tenho lados",
+                        "Não sou polígono"
+                    ]
+                },
+                {
+                    resposta: "QUADRADO",
+                    dicas: [
+                        "Tenho 4 lados iguais",
+                        "Todos meus ângulos são 90°",
+                        "Sou um retângulo especial",
+                        "Minha área é lado × lado",
+                        "Sou um polígono regular",
+                        "Tenho 4 eixos de simetria",
+                        "Minha diagonal divide meus ângulos ao meio",
+                        "Sou caso particular do losango"
+                    ]
+                },
+                {
+                    resposta: "RETÂNGULO",
+                    dicas: [
+                        "Lados opostos paralelos",
+                        "Lado x altura calcula minha área",
+                        "Tenho 4 ângulos de 90°",
+                        "Sou uma forma geométrica",
+                        "A soma dos meus ângulos internos é sempre 360°",
+                        "Sou um quadrilátero",
+                        "Sou um polígono",
+                        "Tenho 4 lados"
+                    ]
+                },
+                {
+                    resposta: "ESFERA",
+                    dicas: [
+                        "Sou parecida com planetas",
+                        "Sou um sólido geométrico",
+                        "Sou a forma da laranja",
+                        "Sou da geometria espacial",
+                        "Sou obtido pela rotação do semicírculo",
+                        "Todos os pontos estão equidistantes do centro",
+                        "Sou uma figura 3D simétrica",
+                        "Tenho volume"
+                    ]
+                },
+                {
+                    resposta: "CUBO",
+                    dicas: [
+                        "Sou uma figura espacial",
+                        "Minhas faces são quadradas",
+                        "Sou um poliedro",
+                        "Sou composto por 6 faces",
+                        "Sou um sólido geométrico",
+                        "Me chamam de dado",
+                        "Tenho volume",
+                        "Sou regular"
+                    ]
+                },
+                {
+                    resposta: "PIRÂMIDE",
+                    dicas: [
+                        "Sou uma figura espacial",
+                        "Minha base pode ter muitas formas",
+                        "Sou um poliedro",
+                        "Sou composta por uma base e um vértice",
+                        "Sou um sólido geométrico",
+                        "Tenho polígonos",
+                        "Tenho volume",
+                        "Estou no Egito"
+                    ]
+                },
+                {
+                    resposta: "CILINDRO",
+                    dicas: [
+                        "Tenho dois planos paralelos",
+                        "Posso ser reto",
+                        "Sou tridimensional",
+                        "Sou uma figura geométrica",
+                        "Minhas bases são círculos",
+                        "Sou formado por polígonos",
+                        "Sou um poliedro",
+                        "Posso ser oblíquo"
+                    ]
+                },
+                {
+                    resposta: "HEXÁGONO",
+                    dicas: [
+                        "Sou um polígono",
+                        "Posso ser regular",
+                        "Tenho 6 lados",
+                        "Traçando retas pelos meus vértices formo triângulos",
+                        "Sou uma forma geométrica",
+                        "Posso ser irregular",
+                        "A soma dos meus ângulos internos é sempre 720°",
+                        "Sou da geometria plana"
+                    ]
+                },
+                {
+                    resposta: "PENTÁGONO",
+                    dicas: [
+                        "Sou um grupo de polígonos",
+                        "Minha forma tem 5 lados",
+                        "Posso ser regular",
+                        "(perímetro x apótema) / 2 calcula minha área",
+                        "Tenho 5 vértices",
+                        "Posso ser irregular",
+                        "Sou um grupo de formas geométricas",
+                        "Sou símbolo de segurança nos EUA"
+                    ]
+                },
+                {
+                    resposta: "POLÍGONO",
+                    dicas: [
+                        "Sou uma figura fechada",
+                        "Sou limitado por retas",
+                        "Posso ser convexo",
+                        "Posso ter muitos lados",
+                        "Estou no plano",
+                        "Posso ter muitos ângulos",
+                        "Tenho vértices",
+                        "Posso ser côncavo"
+                    ]
+                },
+                {
+                    resposta: "OCTÓGONO",
+                    dicas: [
+                        "Sou uma figura 2D",
+                        "Possuo 8 lados",
+                        "Estou na geometria plana",
+                        "Posso ser regular",
+                        "Sou um polígono",
+                        "A soma dos meus ângulos internos é 1080°",
+                        "Posso ser irregular",
+                        "Tenho vértices e arestas"
+                    ]
+                },
+                {
+                    resposta: "HEPTÁGONO",
+                    dicas: [
+                        "Tenho vértices e arestas",
+                        "Sou um polígono",
+                        "Posso ser côncavo ou convexo",
+                        "Posso ser irregular",
+                        "Estou na geometria plana",
+                        "Tenho 7 lados",
+                        "A soma dos meus ângulos internos é 900°",
+                        "Posso ser regular"
+                    ]
+                },
+                {
+                    resposta: "PERÍMETRO",
+                    dicas: [
+                        "Sou a linha em volta da figura",
+                        "Sou soma do contorno",
+                        "Posso medir figuras",
+                        "Sou a soma dos lados",
+                        "A linha que delimita regiões",
+                        "Medir ao redor do lugar",
+                        "Em um quadrado de lados 2, eu sou 8",
+                        "Em um triângulo 3,6,5 eu sou 14"
+                    ]
+                },
+                {
+                    resposta: "ÁREA",
+                    dicas: [
+                        "Sinônimo de campo estudado",
+                        "Sou da geometria plana",
+                        "Posso ser cm²",
+                        "Posso ser m²",
+                        "Sou um conceito matemático",
+                        "Existem várias unidades para me medir",
+                        "Sou a superfície",
+                        "Sou quantidade de espaço"
+                    ]
+                },
+                {
+                    resposta: "PLANO",
+                    dicas: [
+                        "Na geografia sou relevo",
+                        "Sou uma noção primitiva da geometria",
+                        "Dois pontos temos uma reta e a reta está em mim",
+                        "Sou representado por letras gregas",
+                        "Tenho duas dimensões",
+                        "Sou infinito",
+                        "Não sou desnivelado",
+                        "Sou superfície lisa"
+                    ]
+                },
+                {
+                    resposta: "EIXO",
+                    dicas: [
+                        "Estou no plano cartesiano",
+                        "Sou as linhas principais de referência",
+                        "Sou linha reta",
+                        "Posso ser ordenada",
+                        "Posso ser abscissa",
+                        "Posso ser horizontal",
+                        "O encontro na origem é referência",
+                        "Posso ser vertical"
+                    ]
+                },
+                {
+                    resposta: "PLANO CARTESIANO",
+                    dicas: [
+                        "Tenho coordenadas",
+                        "Tenho origem",
+                        "Tenho abscissa",
+                        "Sou composto por duas retas perpendiculares",
+                        "Tenho ordenada",
+                        "Tenho x e y",
+                        "Formo gráficos",
+                        "René Descartes me criou"
+                    ]
+                },
+                {
+                    resposta: "POLIEDRO",
+                    dicas: [
+                        "Tenho profundidade",
+                        "Sou composto de polígonos",
+                        "Sou figuras tridimensionais",
+                        "Tenho volume",
+                        "Sou um grupo de formas",
+                        "Tenho vértices",
+                        "Sou objeto da geometria espacial",
+                        "Tenho faces"
+                    ]
+                },
+                {
+                    resposta: "VÉRTICE",
+                    dicas: [
+                        "Ponto de encontro de retas",
+                        "Posso ser chamado de canto",
+                        "Sou cantos dos poliedros",
+                        "Ponto de encontro de curvas",
+                        "Sou encontro de arestas",
+                        "Sou a origem do ângulo",
+                        "Posso ser chamado de bico",
+                        "Sou cantos dos polígonos"
+                    ]
+                }
+            ],
+
+            trigonometria: [
+                {
+                    resposta: "SENO",
+                    dicas: [
+                        "Não sou cosseno",
+                        "Estou na trigonometria",
+                        "Estou nas relações trigonométricas",
+                        "No círculo trigonométrico estou no eixo y",
+                        "Sou cateto oposto sobre hipotenusa",
+                        "Sou uma razão trigonométrica",
+                        "Posso ser uma função",
+                        "Estudo os ângulos"
+                    ]
+                },
+                {
+                    resposta: "COSSENO",
+                    dicas: [
+                        "Meu quadrado + quadrado do seno é igual a 1",
+                        "Meu inverso é secante",
+                        "Sou cateto adjacente sobre hipotenusa",
+                        "Sou razão trigonométrica",
+                        "Estou na trigonometria",
+                        "Sou estudo dos ângulos",
+                        "Posso ser uma função",
+                        "Sou relação de cateto adjacente, ângulo e hipotenusa"
+                    ]
+                },
+                {
+                    resposta: "TANGENTE",
+                    dicas: [
+                        "Toco em apenas um ponto",
+                        "Sou uma reta",
+                        "Não sou seno",
+                        "Sou uma razão trigonométrica",
+                        "Sou seno/cosseno",
+                        "Sou cateto oposto sobre cateto adjacente",
+                        "Não sou cosseno",
+                        "Minha inversa é cotangente"
+                    ]
+                },
+                {
+                    resposta: "HIPOTENUSA",
+                    dicas: [
+                        "Estou na fórmula a² = b² + c²",
+                        "Estou no triângulo retângulo",
+                        "Pitágoras me estudou",
+                        "Sou o maior lado de um triângulo retângulo",
+                        "Sou a maior distância entre dois vértices",
+                        "Ligo os catetos",
+                        "Estou no Teorema de Pitágoras",
+                        "Sou lado oposto do ângulo de 90°"
+                    ]
+                },
+                {
+                    resposta: "SECANTE",
+                    dicas: [
+                        "Sou o inverso do cosseno",
+                        "Sou razão do ângulo entre hipotenusa e cateto adjacente",
+                        "Estou na trigonometria",
+                        "Sou uma reta",
+                        "Sou a distância da origem à reta que toca a circunferência",
+                        "Sou hipotenusa sobre cateto adjacente",
+                        "Sou uma função trigonométrica",
+                        "Meu símbolo é sec"
+                    ]
+                },
+                {
+                    resposta: "COSSECANTE",
+                    dicas: [
+                        "Sou o inverso do seno",
+                        "Sou hipotenusa sobre cateto oposto",
+                        "Estou na trigonometria",
+                        "Sou uma função trigonométrica",
+                        "Meu símbolo é csc",
+                        "Sou razão trigonométrica",
+                        "Valores meus são sempre ≥ 1 ou ≤ -1",
+                        "Completo as funções trigonométricas"
+                    ]
+                },
+                {
+                    resposta: "COTANGENTE",
+                    dicas: [
+                        "Sou o inverso da tangente",
+                        "Sou cosseno sobre seno",
+                        "Sou cateto adjacente sobre cateto oposto",
+                        "Estou na trigonometria",
+                        "Sou uma função trigonométrica",
+                        "Meu símbolo é cot",
+                        "Sou razão trigonométrica",
+                        "Completo as seis funções trigonométricas"
+                    ]
+                },
+                {
+                    resposta: "ARCO",
+                    dicas: [
+                        "Sou uma parte da circunferência",
+                        "Tenho medida angular",
+                        "Posso ser medido em graus ou radianos",
+                        "Sou fundamental na trigonometria",
+                        "Defino as funções trigonométricas",
+                        "Posso ser maior ou menor",
+                        "Tenho comprimento",
+                        "Relaciono ângulos e circunferências"
+                    ]
+                },
+                {
+                    resposta: "RADIANO",
+                    dicas: [
+                        "Sou unidade de medida angular",
+                        "180° = π radianos",
+                        "Sou mais usado em cálculo",
+                        "Relaciono comprimento do arco com o raio",
+                        "Sou adimensional",
+                        "Sou padrão no sistema internacional",
+                        "Simplifico fórmulas trigonométricas",
+                        "360° = 2π radianos"
+                    ]
+                },
+                {
+                    resposta: "CÍRCULO TRIGONOMÉTRICO",
+                    dicas: [
+                        "Tenho raio 1",
+                        "Centro na origem (0,0)",
+                        "Defino todas as funções trigonométricas",
+                        "Sou fundamental para entender seno e cosseno",
+                        "Dividido em 4 quadrantes",
+                        "Ângulos são medidos a partir do eixo x",
+                        "Coordenadas dos pontos são (cos θ, sen θ)",
+                        "Sou base da trigonometria analítica"
+                    ]
+                },
+                {
+                    resposta: "QUADRANTE",
+                    dicas: [
+                        "Divido o plano cartesiano",
+                        "Sou uma das quatro partes",
+                        "Primeiro quadrante: x>0, y>0",
+                        "Segundo quadrante: x<0, y>0",
+                        "Terceiro quadrante: x<0, y<0",
+                        "Quarto quadrante: x>0, y<0",
+                        "Determino sinais das funções trigonométricas",
+                        "Sou fundamental na localização angular"
+                    ]
+                },
+                {
+                    resposta: "IDENTIDADE TRIGONOMÉTRICA",
+                    dicas: [
+                        "Sou uma igualdade verdadeira para todos os valores",
+                        "sen²θ + cos²θ = 1 é meu exemplo mais famoso",
+                        "Simplifico expressões",
+                        "Resolvo equações trigonométricas",
+                        "Tenho várias formas diferentes",
+                        "Sou fundamental em cálculos avançados",
+                        "Relaciono diferentes funções trigonométricas",
+                        "Provas matemáticas me utilizam"
+                    ]
+                },
+                {
+                    resposta: "ÂNGULO",
+                    dicas: [
+                        "Sou abertura entre duas retas",
+                        "Posso ser agudo, reto ou obtuso",
+                        "Medido em graus ou radianos",
+                        "Sou fundamental na trigonometria",
+                        "Defino as razões trigonométricas",
+                        "Tenho vértice e lados",
+                        "Posso ser complementar ou suplementar",
+                        "Sou objeto de estudo geométrico"
+                    ]
+                },
+                {
+                    resposta: "CATETO",
+                    dicas: [
+                        "Estou no triângulo retângulo",
+                        "Formo o ângulo de 90°",
+                        "Sou menor que a hipotenusa",
+                        "Posso ser oposto ou adjacente",
+                        "Relaciono-me com as razões trigonométricas",
+                        "Sou fundamental no Teorema de Pitágoras",
+                        "Dois de mim formam o ângulo reto",
+                        "Sou lado do triângulo retângulo"
+                    ]
+                },
+                {
+                    resposta: "TEOREMA DE PITÁGORAS",
+                    dicas: [
+                        "a² + b² = c²",
+                        "Relaciono lados do triângulo retângulo",
+                        "Sou fundamental na geometria",
+                        "Calculo distâncias",
+                        "Provas me utilizam extensivamente",
+                        "Aplico-se apenas a triângulos retângulos",
+                        "Sou um dos teoremas mais famosos",
+                        "Conheço-me desde a antiguidade"
+                    ]
+                },
+                {
+                    resposta: "FUNÇÃO PERIÓDICA",
+                    dicas: [
+                        "Repito meus valores em intervals regulares",
+                        "Seno e cosseno são meus exemplos clássicos",
+                        "Tenho período definido",
+                        "Sou fundamental em fenômenos oscilatórios",
+                        "Represento movimentos repetitivos",
+                        "Gráficos meus são ondulatórios",
+                        "Sou estudada na trigonometria",
+                        "Aplico-me em física e engenharia"
+                    ]
+                },
+                {
+                    resposta: "AMPLITUDE",
+                    dicas: [
+                        "Sou a altura máxima de uma onda",
+                        "Em funções trigonométricas, sou o valor máximo",
+                        "Medio a intensidade de oscilações",
+                        "Sou metade da diferença entre máximo e mínimo",
+                        "Importante em fenômenos ondulatórios",
+                        "Relaciono-me com energia",
+                        "Sou parâmetro de funções seno e cosseno",
+                        "Determino a variação vertical"
+                    ]
+                },
+                {
+                    resposta: "PERÍODO",
+                    dicas: [
+                        "Sou o intervalo de repetição",
+                        "Para seno e cosseno sou 2π radianos",
+                        "Medio o tempo de um ciclo completo",
+                        "Sou o comprimento de um ciclo",
+                        "Inverso da frequência",
+                        "Sou fundamental em funções periódicas",
+                        "Determino quando a função se repete",
+                        "Sou medida em unidades de tempo ou ângulo"
+                    ]
+                },
+                {
+                    resposta: "FASE",
+                    dicas: [
+                        "Determino o deslocamento horizontal",
+                        "Sou o ângulo inicial em funções trigonométricas",
+                        "Desloco o gráfico para esquerda ou direita",
+                        "Afeto o ponto de início do ciclo",
+                        "Sou parâmetro em sen(θ + φ)",
+                        "Importante em análise de ondas",
+                        "Relaciono diferentes funções oscilatórias",
+                        "Sou medida em radianos ou graus"
+                    ]
+                }
+            ],
+
+            historia: [
+                {
+                    resposta: "EUCLIDES",
+                    dicas: [
+                        "Sou o matemático da Geometria Euclidiana",
+                        "Sou pai da geometria",
+                        "Dei aula em Alexandria",
+                        "Tenho postulados",
+                        "Sou uma pessoa histórica",
+                        "Já morri",
+                        "Sou de Alexandria",
+                        "Sou um matemático grego"
+                    ]
+                },
+                {
+                    resposta: "PITÁGORAS",
+                    dicas: [
+                        "Tenho um teorema famoso",
+                        "Sou grego",
+                        "Meu teorema envolve triângulos retângulos",
+                        "Fundei uma escola",
+                        "Acredito que 'tudo é número'",
+                        "Meu teorema: a² + b² = c²",
+                        "Sou filósofo e matemático",
+                        "Minha escola era secreta"
+                    ]
+                },
+                {
+                    resposta: "ARQUIMEDES",
+                    dicas: [
+                        "Fiz experimentos com coroa de ouro",
+                        "Já morri",
+                        "Projetei armas para guerra",
+                        "Sou de Siracusa",
+                        "Descobri princípios de alavanca",
+                        "Sou da Antiguidade Clássica",
+                        "Sou um matemático grego",
+                        "Gritei 'Eureka!'"
+                    ]
+                },
+                {
+                    resposta: "TALES",
+                    dicas: [
+                        "Tenho um teorema de proporcionalidade",
+                        "Sou matemático",
+                        "Sou um dos 7 sábios da Grécia Antiga",
+                        "Nasci em Mileto",
+                        "Tenho um teorema sobre triângulos",
+                        "Já morri",
+                        "Predi um eclipse solar",
+                        "Sou considerado o primeiro filósofo"
+                    ]
+                },
+                {
+                    resposta: "NEWTON",
+                    dicas: [
+                        "Desenvolvi o cálculo infinitesimal",
+                        "Sou físico e matemático",
+                        "Leis do movimento",
+                        "Lei da gravitação universal",
+                        "Sou inglês",
+                        "Vivi no século XVII",
+                        "Discuti com Leibniz sobre o cálculo",
+                        "Trabalhei com óptica"
+                    ]
+                },
+                {
+                    resposta: "LEIBNIZ",
+                    dicas: [
+                        "Desenvolvi o cálculo independentemente",
+                        "Sou filósofo e matemático",
+                        "Notação moderna do cálculo é minha",
+                        "Sou alemão",
+                        "Inventor da notação dy/dx",
+                        "Discuti com Newton sobre prioridade",
+                        "Trabalhei com sistema binário",
+                        "Contribuí para a lógica matemática"
+                    ]
+                },
+                {
+                    resposta: "GAUSS",
+                    dicas: [
+                        "Sou o 'príncipe dos matemáticos'",
+                        "Desenvolvi a teoria dos números",
+                        "Sou alemão",
+                        "Trabalhei com astronomia",
+                        "Método de eliminação gaussiana",
+                        "Distribuição normal gaussiana",
+                        "Século XVIII-XIX",
+                        "Contribuí para geometria diferencial"
+                    ]
+                },
+                {
+                    resposta: "EULER",
+                    dicas: [
+                        "Introduzi a notação f(x)",
+                        "Sou suíço",
+                        "Número e leva meu nome",
+                        "Fórmula e^(iπ) + 1 = 0",
+                        "Cego na velhice, continuei trabalhando",
+                        "Contribuí para todos os ramos da matemática",
+                        "Século XVIII",
+                        "Trabalhei em São Petersburgo e Berlim"
+                    ]
+                },
+                {
+                    resposta: "FIBONACCI",
+                    dicas: [
+                        "Sequência que leva meu nome: 1,1,2,3,5,8,...",
+                        "Sou italiano",
+                        "Introduzi os algarismos arábicos na Europa",
+                        "Livro Liber Abaci",
+                        "Século XII-XIII",
+                        "Problema dos coelhos",
+                        "Razão áurea aparece na minha sequência",
+                        "Mercador e matemático"
+                    ]
+                },
+                {
+                    resposta: "DESCARTES",
+                    dicas: [
+                        "Penso, logo existo",
+                        "Sou francês",
+                        "Sistema de coordenadas cartesianas",
+                        "Filósofo e matemático",
+                        "Século XVII",
+                        "Geometria analítica",
+                        "Método cartesiano",
+                        "Trabalhei com álgebra e geometria"
+                    ]
+                },
+                {
+                    resposta: "FERMAT",
+                    dicas: [
+                        "Último Teorema que levou 358 anos para provar",
+                        "Sou francês",
+                        "Trabalhei com teoria dos números",
+                        "Princípio do tempo mínimo em óptica",
+                        "Advogado e matemático amador",
+                        "Século XVII",
+                        "Pequeno Teorema de Fermat",
+                        "Método para encontrar máximos e mínimos"
+                    ]
+                },
+                {
+                    resposta: "GALOIS",
+                    dicas: [
+                        "Teoria dos grupos leva meu nome",
+                        "Morri em um duelo aos 20 anos",
+                        "Sou francês",
+                        "Trabalhei com teoria das equações",
+                        "Noite antes do duelo escrevi minhas ideias",
+                        "Século XIX",
+                        "Grupos de Galois",
+                        "Resolubilidade de equações por radicais"
+                    ]
+                },
+                {
+                    resposta: "CANTOR",
+                    dicas: [
+                        "Teoria dos conjuntos",
+                        "Conjuntos infinitos",
+                        "Sou alemão",
+                        "Números transfinitos",
+                        "Diagonalização de Cantor",
+                        "Século XIX",
+                        "Hipótese do contínuo",
+                        "Problemas mentais relacionados ao infinito"
+                    ]
+                },
+                {
+                    resposta: "HILBERT",
+                    dicas: [
+                        "23 problemas para o século XX",
+                        "Sou alemão",
+                        "Programa de Hilbert",
+                        "Axiomatização da geometria",
+                        "Século XIX-XX",
+                        "Espaço de Hilbert",
+                        "Formalista em fundamentos da matemática",
+                        "Discurso 'Devemos saber, saberemos'"
+                    ]
+                },
+                {
+                    resposta: "RIEMANN",
+                    dicas: [
+                        "Hipótese de Riemann (não resolvida)",
+                        "Sou alemão",
+                        "Geometria riemanniana",
+                        "Integral de Riemann",
+                        "Século XIX",
+                        "Superfícies de Riemann",
+                        "Trabalhei com análise complexa",
+                        "Base para relatividade geral"
+                    ]
+                },
+                {
+                    resposta: "BOOLE",
+                    dicas: [
+                        "Álgebra booleana",
+                        "Sou inglês",
+                        "Lógica matemática",
+                        "Século XIX",
+                        "Operadores AND, OR, NOT",
+                        "Base para computação digital",
+                        "Autodidata",
+                        "Lei do pensamento"
+                    ]
+                },
+                {
+                    resposta: "TURING",
+                    dicas: [
+                        "Máquina de Turing",
+                        "Sou inglês",
+                        "Quebrei o código Enigma",
+                        "Pai da ciência da computação",
+                        "Teste de Turing para IA",
+                        "Século XX",
+                        "Morte trágica por envenenamento",
+                        "Trabalhei com morfogênese"
+                    ]
+                },
+                {
+                    resposta: "NOETHER",
+                    dicas: [
+                        "Teorema de Noether",
+                        "Sou alemã",
+                        "Álgebra abstrata",
+                        "Anéis e ideais",
+                        "Século XIX-XX",
+                        "Simetria e leis de conservação",
+                        "Primeira grande matemática mulher",
+                        "Leccionou em Göttingen"
+                    ]
+                },
+                {
+                    resposta: "PASCAL",
+                    dicas: [
+                        "Triângulo de Pascal",
+                        "Sou francês",
+                        "Princípio de Pascal (hidráulica)",
+                        "Calculadora mecânica (Pascaline)",
+                        "Século XVII",
+                        "Probabilidade com Fermat",
+                        "Apologista cristão",
+                        "Trabalhei com ciclóide"
+                    ]
+                },
+                {
+                    resposta: "LAGRANGE",
+                    dicas: [
+                        "Mecânica lagrangiana",
+                        "Sou francês/italiano",
+                        "Teoria dos números",
+                        "Multiplicadores de Lagrange",
+                        "Século XVIII",
+                        "Trabalhei em análise, álgebra e mecânica",
+                        "Membro da Academia de Ciências",
+                        "Equações de Lagrange"
+                    ]
+                }
+            ]
+        };
+
+        // Classe principal do MODO APRESENTAÇÃO
+        class PerfilMatematicoApresentacao {
+            constructor() {
+                this.equipes = [];
+                this.categoriaAtual = 'numeros';
+                this.cartaAtual = null;
+                this.dicaAtualIndex = 0;
+                this.timeAtualIndex = 0;
+                this.rodadaAtual = 1;
+                this.totalRodadas = 10;
+                this.cartasUsadas = {
+                    numeros: [],
+                    algebra: [],
+                    geometria: [],
+                    trigonometria: [],
+                    historia: [],
+                    aleatoria: []
+                };
+                this.cartasJogadas = 0;
+                this.respostaRevelada = false;
+                this.maxEquipes = 6;
+                this.ultimaRespostaErrada = false;
+                this.equipeEditando = null;
+                this.sonsAtivos = true; // NOVO: Controle de sons
+                this.audioContext = null; // NOVO: Contexto de áudio
+                
+                this.inicializarElementos();
+                this.configurarEventos();
+                this.inicializarEquipesPadrao();
+                this.inicializarSistemaDeSons(); // NOVO: Inicializar sons
+                this.atualizarBotoesCategoriaModal();
+            }
+
+            // NOVO MÉTODO: Inicializar sistema de sons
+            inicializarSistemaDeSons() {
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    console.log('Sistema de sons inicializado com sucesso!');
+                } catch (e) {
+                    console.warn('AudioContext não suportado:', e);
+                    this.sonsAtivos = false;
+                }
+            }
+
+            // NOVO MÉTODO: Tocar som personalizado
+            tocarSom(tipo) {
+                if (!this.sonsAtivos || !this.audioContext) return;
+
+                try {
+                    let frequencia, duracao, tipoOnda;
+
+                    switch (tipo) {
+                        case 'inicio':
+                            // Som de abertura/vinheta (ascendente)
+                            frequencia = 200;
+                            duracao = 1.5;
+                            tipoOnda = 'sine';
+                            this.criarSomAscendente(frequencia, duracao, tipoOnda);
+                            break;
+
+                        case 'dica':
+                            // Som suave de transição
+                            frequencia = 800;
+                            duracao = 0.3;
+                            tipoOnda = 'triangle';
+                            this.criarSomSimples(frequencia, duracao, tipoOnda);
+                            break;
+
+                        case 'acerto':
+                            // Som de acerto/aplausos (fanfarra)
+                            this.criarSomAcerto();
+                            break;
+
+                        case 'erro':
+                            // Som de erro "Você Perdeu Ahh!" (descendente dramático)
+                            this.criarSomErro();
+                            break;
+
+                        case 'transferir':
+                            // Som de passagem/troca
+                            frequencia = 600;
+                            duracao = 0.4;
+                            tipoOnda = 'sawtooth';
+                            this.criarSomSimples(frequencia, duracao, tipoOnda);
+                            break;
+
+                        case 'final':
+                            // Fanfarra final/resultados
+                            this.criarSomVitoria();
+                            break;
+
+                        case 'timer':
+                            // Tic-tac crescente
+                            frequencia = 1000;
+                            duracao = 0.1;
+                            tipoOnda = 'square';
+                            this.criarSomSimples(frequencia, duracao, tipoOnda);
+                            break;
+
+                        case 'proxima_equipe':
+                            // Som de transição suave
+                            frequencia = 500;
+                            duracao = 0.2;
+                            tipoOnda = 'sine';
+                            this.criarSomSimples(frequencia, duracao, tipoOnda);
+                            break;
+                    }
+                } catch (e) {
+                    console.warn('Erro ao tocar som:', e);
+                }
+            }
+
+            // NOVO MÉTODO: Criar som simples
+            criarSomSimples(freq, dur, tipoOnda) {
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                
+                oscillator.type = tipoOnda;
+                oscillator.frequency.value = freq;
+                
+                gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + dur);
+                
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + dur);
+            }
+
+            // NOVO MÉTODO: Criar som ascendente (início)
+            criarSomAscendente(freqInicial, dur, tipoOnda) {
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                
+                oscillator.type = tipoOnda;
+                oscillator.frequency.setValueAtTime(freqInicial, this.audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(freqInicial * 4, this.audioContext.currentTime + dur);
+                
+                gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.5, this.audioContext.currentTime + dur/2);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + dur);
+                
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + dur);
+            }
+
+            // NOVO MÉTODO: Criar som de acerto (fanfarra)
+            criarSomAcerto() {
+                const notas = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                const tempo = 0.15;
+                
+                notas.forEach((freq, index) => {
+                    setTimeout(() => {
+                        const oscillator = this.audioContext.createOscillator();
+                        const gainNode = this.audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(this.audioContext.destination);
+                        
+                        oscillator.type = 'sine';
+                        oscillator.frequency.value = freq;
+                        
+                        gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.3);
+                        
+                        oscillator.start(this.audioContext.currentTime);
+                        oscillator.stop(this.audioContext.currentTime + 0.3);
+                    }, index * tempo * 1000);
+                });
+            }
+
+            // NOVO MÉTODO: Criar som de erro dramático
+            criarSomErro() {
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.setValueAtTime(300, this.audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(50, this.audioContext.currentTime + 1);
+                
+                gainNode.gain.setValueAtTime(0.4, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 1);
+                
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + 1);
+            }
+
+            // NOVO MÉTODO: Criar som de vitória
+            criarSomVitoria() {
+                const notas = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98]; // Fanfarra
+                const tempo = 0.2;
+                
+                notas.forEach((freq, index) => {
+                    setTimeout(() => {
+                        const oscillator = this.audioContext.createOscillator();
+                        const gainNode = this.audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(this.audioContext.destination);
+                        
+                        oscillator.type = 'square';
+                        oscillator.frequency.value = freq;
+                        
+                        gainNode.gain.setValueAtTime(0.2, this.audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.4);
+                        
+                        oscillator.start(this.audioContext.currentTime);
+                        oscillator.stop(this.audioContext.currentTime + 0.4);
+                    }, index * tempo * 1000);
+                });
+            }
+
+            // NOVO MÉTODO: Alternar estado dos sons
+            alternarSons(ativar) {
+                this.sonsAtivos = ativar;
+                
+                if (ativar && this.audioContext && this.audioContext.state === 'suspended') {
+                    this.audioContext.resume();
+                }
+                
+                this.atualizarBotoesSom();
+                
+                // Tocar som de confirmação
+                if (ativar) {
+                    setTimeout(() => this.tocarSom('dica'), 100);
+                }
+            }
+
+            // NOVO MÉTODO: Atualizar aparência dos botões de som
+            atualizarBotoesSom() {
+                const btnAtivar = document.getElementById('btnAtivarSons');
+                const btnDesativar = document.getElementById('btnDesativarSons');
+                
+                if (this.sonsAtivos) {
+                    btnAtivar.classList.add('ativo');
+                    btnDesativar.classList.remove('ativo');
+                } else {
+                    btnAtivar.classList.remove('ativo');
+                    btnDesativar.classList.add('ativo');
+                }
+            }
+
+            inicializarElementos() {
+                // Telas e Modal
+                this.telaConfiguracao = document.getElementById('telaConfiguracao');
+                this.telaApresentacao = document.getElementById('telaApresentacao');
+                this.telaResultadoFinal = document.getElementById('telaResultadoFinal');
+                this.modalCategoria = document.getElementById('modalCategoria');
+                this.modalEdicaoPlacar = document.getElementById('modalEdicaoPlacar');
+                
+                // Elementos de configuração
+                this.containerEquipes = document.getElementById('containerEquipes');
+                this.selectCategoria = document.getElementById('selectCategoria');
+                this.selectRodadas = document.getElementById('selectRodadas');
+                this.btnIniciarApresentacao = document.getElementById('btnIniciarApresentacao');
+                
+                // Elementos do jogo
+                this.tituloCarta = document.getElementById('tituloCarta');
+                this.dicasContainer = document.getElementById('dicasContainer');
+                this.listaPlacar = document.getElementById('listaPlacar');
+                this.timeAtual = document.getElementById('timeAtual');
+                
+                // Elementos de resposta
+                this.inputResposta = document.getElementById('inputResposta');
+                this.btnTentarResposta = document.getElementById('btnTentarResposta');
+                this.resultadoTentativa = document.getElementById('resultadoTentativa');
+                this.respostaReveladaDiv = document.getElementById('respostaRevelada');
+                this.respostaCorretaDiv = document.getElementById('respostaCorreta');
+                
+                // NOVOS ELEMENTOS - Indicador de Categoria
+                this.categoriaIndicator = document.getElementById('categoriaIndicator');
+                this.categoriaIcone = document.getElementById('categoriaIcone');
+                this.categoriaNome = document.getElementById('categoriaNome');
+                
+                // Botões de controle
+                this.btnRevelarResposta = document.getElementById('btnRevelarResposta');
+                this.btnProximaDica = document.getElementById('btnProximaDica');
+                this.btnProximaCarta = document.getElementById('btnProximaCarta');
+                this.btnTransferir = document.getElementById('btnTransferir');
+                this.btnFinalizarJogo = document.getElementById('btnFinalizarJogo');
+                this.btnNovoJogo = document.getElementById('btnNovoJogo');
+                
+                // NOVO BOTÃO: Transferência Voluntária
+                this.btnTransferirVoluntariamente = document.getElementById('btnTransferirVoluntariamente');
+                
+                // NOVOS ELEMENTOS - Controles de Som
+                this.btnAtivarSons = document.getElementById('btnAtivarSons');
+                this.btnDesativarSons = document.getElementById('btnDesativarSons');
+                
+                // Elementos de Exportação
+                this.btnExportarPDF = document.getElementById('btnExportarPDF');
+                this.btnExportarExcel = document.getElementById('btnExportarExcel');
+                
+                // Elementos de Edição Placar
+                this.infoEquipeEdicao = document.getElementById('infoEquipeEdicao');
+                this.inputNovosPontos = document.getElementById('inputNovosPontos');
+                this.btnConfirmarEdicao = document.getElementById('btnConfirmarEdicao');
+                this.btnCancelarEdicao = document.getElementById('btnCancelarEdicao');
+                
+                // Modal
+                this.btnFecharModal = document.getElementById('btnFecharModal');
+                this.botoesCategoriaModal = document.querySelectorAll('.btn-categoria-modal');
+            }
+
+            configurarEventos() {
+                this.btnIniciarApresentacao.addEventListener('click', () => this.iniciarJogo());
+                this.btnTentarResposta.addEventListener('click', () => this.tentarResposta());
+                this.btnRevelarResposta.addEventListener('click', () => this.revelarResposta());
+                this.btnProximaDica.addEventListener('click', () => this.revelarProximaDica());
+                this.btnProximaCarta.addEventListener('click', () => this.abrirModalCategoria());
+                this.btnTransferir.addEventListener('click', () => this.transferirPergunta());
+                this.btnFinalizarJogo.addEventListener('click', () => this.finalizarJogo());
+                this.btnNovoJogo.addEventListener('click', () => this.novoJogo());
+                
+                // NOVO EVENTO: Transferência Voluntária
+                this.btnTransferirVoluntariamente.addEventListener('click', () => this.transferirVoluntariamente());
+                
+                // NOVOS EVENTOS: Controles de Som
+                this.btnAtivarSons.addEventListener('click', () => this.alternarSons(true));
+                this.btnDesativarSons.addEventListener('click', () => this.alternarSons(false));
+                
+                // Eventos de Exportação
+                this.btnExportarPDF.addEventListener('click', () => this.exportarPDF());
+                this.btnExportarExcel.addEventListener('click', () => this.exportarExcel());
+                
+                // Eventos de Edição Placar
+                this.btnConfirmarEdicao.addEventListener('click', () => this.confirmarEdicaoPlacar());
+                this.btnCancelarEdicao.addEventListener('click', () => this.fecharModalEdicaoPlacar());
+
+                // Modal events
+                this.btnFecharModal.addEventListener('click', () => this.fecharModalCategoria());
+                this.botoesCategoriaModal.forEach(btn => {
+                    btn.addEventListener('click', (e) => this.selecionarCategoriaModal(e.target.dataset.categoria));
+                });
+
+                // Enter no input de resposta
+                this.inputResposta.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.tentarResposta();
+                });
+            }
+
+            // NOVO MÉTODO: Transferência voluntária
+            transferirVoluntariamente() {
+                this.tocarSom('transferir');
+                this.proximoTime();
+                this.limparAreaResposta();
+                this.btnTransferir.style.display = 'none';
+                this.ultimaRespostaErrada = false;
+            }
+
+            // MÉTODO CORRIGIDO: Exportar PDF
+            exportarPDF() {
+                try {
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
+                    
+                    // Configurações do documento
+                    doc.setFont('helvetica', 'bold');
+                    doc.setFontSize(20);
+                    doc.setTextColor(40, 40, 40);
+                    
+                    // Título
+                    doc.text('RELATÓRIO DO JOGO - PERFIL MATEMÁTICO', 105, 20, { align: 'center' });
+                    
+                    // Data e informações
+                    doc.setFontSize(12);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, 20, 35);
+                    doc.text(`Categoria: ${this.getNomeCategoria(this.categoriaAtual)}`, 20, 42);
+                    doc.text(`Total de Rodadas: ${this.totalRodadas}`, 20, 49);
+                    doc.text(`Cartas Jogadas: ${this.cartasJogadas}`, 20, 56);
+                    
+                    // Classificação
+                    doc.setFont('helvetica', 'bold');
+                    doc.setFontSize(16);
+                    doc.text('CLASSIFICAÇÃO FINAL', 105, 75, { align: 'center' });
+                    
+                    const equipesOrdenadas = [...this.equipes].sort((a, b) => b.pontos - a.pontos);
+                    
+                    // Cabeçalho da tabela
+                    doc.setFillColor(74, 85, 104);
+                    doc.setTextColor(255, 255, 255);
+                    doc.rect(20, 85, 170, 10, 'F');
+                    doc.text('POSIÇÃO', 25, 91);
+                    doc.text('EQUIPE', 60, 91);
+                    doc.text('PONTOS', 140, 91);
+                    doc.text('ACERTOS', 160, 91);
+                    
+                    // Dados das equipes
+                    doc.setTextColor(0, 0, 0);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(10);
+                    
+                    let yPos = 100;
+                    equipesOrdenadas.forEach((equipe, index) => {
+                        if (yPos > 270) {
+                            doc.addPage();
+                            yPos = 20;
+                        }
+                        
+                        // Alternar cores das linhas
+                        if (index % 2 === 0) {
+                            doc.setFillColor(240, 240, 240);
+                            doc.rect(20, yPos - 5, 170, 8, 'F');
+                        }
+                        
+                        // Posição
+                        doc.setFont('helvetica', 'bold');
+                        doc.text(`${index + 1}º`, 25, yPos);
+                        
+                        // Nome da equipe
+                        doc.text(equipe.nome, 60, yPos);
+                        
+                        // Pontuação
+                        doc.text(equipe.pontos.toString(), 140, yPos);
+                        
+                        // Acertos
+                        doc.text(equipe.acertos.toString(), 160, yPos);
+                        
+                        yPos += 8;
+                    });
+                    
+                    // Estatísticas
+                    yPos += 15;
+                    doc.setFont('helvetica', 'bold');
+                    doc.setFontSize(14);
+                    doc.text('ESTATÍSTICAS GERAIS', 105, yPos, { align: 'center' });
+                    yPos += 10;
+                    
+                    const totalPontos = equipesOrdenadas.reduce((sum, equipe) => sum + equipe.pontos, 0);
+                    const totalAcertos = equipesOrdenadas.reduce((sum, equipe) => sum + equipe.acertos, 0);
+                    const mediaPontos = totalPontos / this.equipes.length;
+                    
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text(`Total de pontos distribuídos: ${totalPontos}`, 20, yPos);
+                    yPos += 6;
+                    doc.text(`Total de acertos: ${totalAcertos}`, 20, yPos);
+                    yPos += 6;
+                    doc.text(`Média de pontos por equipe: ${mediaPontos.toFixed(1)}`, 20, yPos);
+                    yPos += 6;
+                    doc.text(`Cartas jogadas: ${this.cartasJogadas}`, 20, yPos);
+                    yPos += 6;
+                    doc.text(`Rodadas realizadas: ${this.rodadaAtual - 1}`, 20, yPos);
+                    
+                    // Rodapé
+                    doc.setFontSize(8);
+                    doc.setTextColor(100, 100, 100);
+                    doc.text('Relatório gerado automaticamente pelo Perfil Matemático', 105, 285, { align: 'center' });
+                    
+                    // Salvar o PDF
+                    doc.save(`perfil-matematico-${new Date().toISOString().split('T')[0]}.pdf`);
+                    
+                } catch (error) {
+                    console.error('Erro ao gerar PDF:', error);
+                    alert('Erro ao gerar PDF. Verifique se há uma conexão com a internet para carregar as bibliotecas necessárias.');
+                }
+            }
+
+            // MÉTODO CORRIGIDO: Exportar Excel
+            exportarExcel() {
+                try {
+                    const equipesOrdenadas = [...this.equipes].sort((a, b) => b.pontos - a.pontos);
+                    const totalPontos = equipesOrdenadas.reduce((sum, equipe) => sum + equipe.pontos, 0);
+                    const totalAcertos = equipesOrdenadas.reduce((sum, equipe) => sum + equipe.acertos, 0);
+                    const mediaPontos = totalPontos / this.equipes.length;
+                    
+                    // Criar conteúdo CSV
+                    let csvContent = "data:text/csv;charset=utf-8,";
+                    
+                    // Cabeçalho
+                    csvContent += "PERFIL MATEMÁTICO - RELATÓRIO DO JOGO\r\n";
+                    csvContent += `Data,${new Date().toLocaleDateString('pt-BR')}\r\n`;
+                    csvContent += `Categoria,${this.getNomeCategoria(this.categoriaAtual)}\r\n`;
+                    csvContent += `Total de Rodadas,${this.totalRodadas}\r\n`;
+                    csvContent += `Cartas Jogadas,${this.cartasJogadas}\r\n`;
+                    csvContent += `Rodadas Realizadas,${this.rodadaAtual - 1}\r\n`;
+                    csvContent += "\r\n";
+                    
+                    // Classificação
+                    csvContent += "CLASSIFICAÇÃO FINAL\r\n";
+                    csvContent += "Posição,Equipe,Pontuação,Acertos\r\n";
+                    
+                    equipesOrdenadas.forEach((equipe, index) => {
+                        csvContent += `${index + 1},${equipe.nome},${equipe.pontos},${equipe.acertos}\r\n`;
+                    });
+                    
+                    csvContent += "\r\n";
+                    
+                    // Estatísticas
+                    csvContent += "ESTATÍSTICAS GERAIS\r\n";
+                    csvContent += `Total de pontos distribuídos,${totalPontos}\r\n`;
+                    csvContent += `Total de acertos,${totalAcertos}\r\n`;
+                    csvContent += `Média de pontos por equipe,${mediaPontos.toFixed(1)}\r\n`;
+                    csvContent += `Cartas jogadas,${this.cartasJogadas}\r\n`;
+                    csvContent += `Rodadas realizadas,${this.rodadaAtual - 1}\r\n`;
+                    
+                    // Criar link de download
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement("a");
+                    link.setAttribute("href", encodedUri);
+                    link.setAttribute("download", `perfil-matematico-${new Date().toISOString().split('T')[0]}.csv`);
+                    document.body.appendChild(link);
+                    
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                } catch (error) {
+                    console.error('Erro ao gerar Excel:', error);
+                    alert('Erro ao gerar arquivo Excel.');
+                }
+            }
+
+            // MÉTODO ATUALIZADO: Iniciar jogo com som
+            iniciarJogo() {
+                this.configurarEquipes();
+                
+                if (this.equipes.length === 0) {
+                    alert('Por favor, adicione pelo menos uma equipe!');
+                    return;
+                }
+                
+                // Reset do sistema anti-repetição
+                this.cartasUsadas = {
+                    numeros: [],
+                    algebra: [],
+                    geometria: [],
+                    trigonometria: [],
+                    historia: [],
+                    aleatoria: []
+                };
+                
+                this.categoriaAtual = this.selectCategoria.value;
+                this.totalRodadas = parseInt(this.selectRodadas.value);
+                this.rodadaAtual = 1;
+                this.cartasJogadas = 0;
+                this.timeAtualIndex = 0;
+                this.dicaAtualIndex = 0;
+                this.respostaRevelada = false;
+                this.ultimaRespostaErrada = false;
+                this.btnTransferir.style.display = 'none';
+                
+                this.telaConfiguracao.classList.remove('ativa');
+                this.telaApresentacao.classList.add('ativa');
+                
+                // Tocar som de início
+                this.tocarSom('inicio');
+                
+                this.iniciarRodada();
+            }
+
+            // MÉTODO ATUALIZADO: Revelar próxima dica com som
+            revelarProximaDica() {
+                this.dicaAtualIndex++;
+                
+                if (this.dicaAtualIndex < this.cartaAtual.dicas.length) {
+                    const dicas = this.dicasContainer.querySelectorAll('.dica-apresentacao');
+                    
+                    dicas[this.dicaAtualIndex - 1].classList.remove('atual');
+                    dicas[this.dicaAtualIndex - 1].classList.add('revelada');
+                    
+                    dicas[this.dicaAtualIndex].classList.remove('bloqueada');
+                    dicas[this.dicaAtualIndex].classList.add('atual', 'dica-revelada');
+                    dicas[this.dicaAtualIndex].innerHTML = `<span class="dica-numero">${this.dicaAtualIndex + 1}-</span> ${this.cartaAtual.dicas[this.dicaAtualIndex]}`;
+                    
+                    // Tocar som de dica
+                    this.tocarSom('dica');
+                    
+                    if (this.dicaAtualIndex === this.cartaAtual.dicas.length - 1) {
+                        this.btnProximaDica.disabled = true;
+                        this.btnProximaDica.innerHTML = '🚫 SEM MAIS DICAS';
+                    }
+                }
+            }
+
+            // MÉTODO ATUALIZADO: Tentar resposta com sons
+            tentarResposta() {
+                const respostaDigitada = this.inputResposta.value.trim().toUpperCase();
+                
+                if (!respostaDigitada) {
+                    alert('Por favor, digite uma resposta!');
+                    return;
+                }
+
+                const respostaCorreta = this.cartaAtual.resposta.toUpperCase();
+                const acertou = respostaDigitada === respostaCorreta;
+                
+                this.resultadoTentativa.textContent = acertou ? '🎉 RESPOSTA CORRETA!' : '❌ RESPOSTA INCORRETA!';
+                this.resultadoTentativa.className = acertou ? 'resultado-tentativa resultado-correto' : 'resultado-tentativa resultado-incorreto';
+                this.resultadoTentativa.style.display = 'block';
+                
+                if (acertou) {
+                    // Tocar som de acerto
+                    this.tocarSom('acerto');
+                    
+                    const timeAtual = this.equipes[this.timeAtualIndex];
+                    const pontos = this.calcularPontuacao();
+                    
+                    timeAtual.pontos += pontos;
+                    timeAtual.acertos++;
+                    
+                    this.inputResposta.disabled = true;
+                    this.btnTentarResposta.disabled = true;
+                    this.btnTransferir.style.display = 'none';
+                    this.ultimaRespostaErrada = false;
+                    
+                    this.resultadoTentativa.style.animation = 'acerto 0.6s ease-in-out';
+                    setTimeout(() => {
+                        this.resultadoTentativa.style.animation = '';
+                    }, 600);
+                } else {
+                    // Tocar som de erro
+                    this.tocarSom('erro');
+                    
+                    this.ultimaRespostaErrada = true;
+                    this.btnTransferir.style.display = 'block';
+                    
+                    this.resultadoTentativa.style.animation = 'erro 0.6s ease-in-out';
+                    setTimeout(() => {
+                        this.resultadoTentativa.style.animation = '';
+                    }, 600);
+                }
+                
+                this.atualizarPlacar();
+            }
+
+            // MÉTODO ATUALIZADO: Próximo time com som
+            proximoTime() {
+                this.timeAtualIndex = (this.timeAtualIndex + 1) % this.equipes.length;
+                this.atualizarTimeAtual();
+                
+                // Tocar som de próxima equipe
+                this.tocarSom('proxima_equipe');
+            }
+
+            // MÉTODO ATUALIZADO: Finalizar jogo com som
+            finalizarJogo() {
+                // Tocar som de vitória
+                this.tocarSom('final');
+                
+                this.telaApresentacao.classList.remove('ativa');
+                this.telaResultadoFinal.classList.add('ativa');
+                this.exibirResultadoFinal();
+            }
+
+            // MÉTODOS EXISTENTES (mantidos da versão anterior)
+            abrirModalEdicaoPlacar(indexEquipe) {
+                this.equipeEditando = indexEquipe;
+                const equipe = this.equipes[indexEquipe];
+                
+                this.infoEquipeEdicao.innerHTML = `
+                    <div class="cor-marcador" style="background-color: ${equipe.cor}"></div>
+                    <div>
+                        <div style="font-weight: bold; font-size: 1.1em;">${equipe.nome}</div>
+                        <div style="color: #718096; font-size: 0.9em;">Pontuação atual: ${equipe.pontos}</div>
+                    </div>
+                `;
+                
+                this.inputNovosPontos.value = equipe.pontos;
+                this.modalEdicaoPlacar.classList.add('ativa');
+                this.inputNovosPontos.focus();
+                this.inputNovosPontos.select();
+            }
+
+            confirmarEdicaoPlacar() {
+                if (this.equipeEditando !== null) {
+                    const novosPontos = parseInt(this.inputNovosPontos.value);
+                    
+                    if (!isNaN(novosPontos) && novosPontos >= 0) {
+                        this.equipes[this.equipeEditando].pontos = novosPontos;
+                        this.atualizarPlacar();
+                        this.fecharModalEdicaoPlacar();
+                    } else {
+                        alert('Por favor, digite um número válido para a pontuação!');
+                    }
+                }
+            }
+
+            fecharModalEdicaoPlacar() {
+                this.modalEdicaoPlacar.classList.remove('ativa');
+                this.equipeEditando = null;
+            }
+
+            atualizarIndicadorCategoria(categoria) {
+                const configCategorias = {
+                    numeros: { icone: '🔢', nome: 'NÚMEROS', classe: 'categoria-numeros' },
+                    algebra: { icone: '📐', nome: 'ÁLGEBRA', classe: 'categoria-algebra' },
+                    geometria: { icone: '📏', nome: 'GEOMETRIA', classe: 'categoria-geometria' },
+                    trigonometria: { icone: '📊', nome: 'TRIGONOMETRIA', classe: 'categoria-trigonometria' },
+                    historia: { icone: '📜', nome: 'HISTÓRIA', classe: 'categoria-historia' },
+                    aleatoria: { icone: '🎲', nome: 'ALEATÓRIA', classe: 'categoria-aleatoria' }
+                };
+
+                const config = configCategorias[categoria];
+                if (config) {
+                    this.categoriaIcone.textContent = config.icone;
+                    this.categoriaNome.textContent = config.nome;
+                    
+                    // Remover todas as classes de categoria
+                    this.categoriaIndicator.classList.remove(
+                        'categoria-numeros', 'categoria-algebra', 'categoria-geometria',
+                        'categoria-trigonometria', 'categoria-historia', 'categoria-aleatoria'
+                    );
+                    
+                    // Adicionar a classe correta
+                    this.categoriaIndicator.classList.add(config.classe);
+                }
+            }
+
+            obterCartaAleatoria(categoria) {
+                let cartasDisponiveis;
+                
+                if (categoria === 'aleatoria') {
+                    // Para categoria aleatória, pegar de todas as categorias
+                    const todasCartas = [];
+                    Object.values(cartasPorCategoria).forEach(cartasCategoria => {
+                        cartasCategoria.forEach(carta => {
+                            if (!this.cartasUsadas.aleatoria.includes(carta.resposta)) {
+                                todasCartas.push(carta);
+                            }
+                        });
+                    });
+                    cartasDisponiveis = todasCartas;
+                } else {
+                    // Para categorias específicas
+                    const cartas = cartasPorCategoria[categoria];
+                    if (!cartas || cartas.length === 0) return null;
+                    
+                    cartasDisponiveis = cartas.filter(carta => 
+                        !this.cartasUsadas[categoria].includes(carta.resposta)
+                    );
+                }
+                
+                if (cartasDisponiveis.length === 0) {
+                    // Reset da categoria se todas as cartas foram usadas
+                    if (categoria === 'aleatoria') {
+                        this.cartasUsadas.aleatoria = [];
+                        // Pegar qualquer carta de qualquer categoria
+                        const todasCartas = Object.values(cartasPorCategoria).flat();
+                        return todasCartas[Math.floor(Math.random() * todasCartas.length)];
+                    } else {
+                        this.cartasUsadas[categoria] = [];
+                        return cartasPorCategoria[categoria][Math.floor(Math.random() * cartasPorCategoria[categoria].length)];
+                    }
+                }
+                
+                // Escolher aleatoriamente entre as disponíveis
+                const carta = cartasDisponiveis[Math.floor(Math.random() * cartasDisponiveis.length)];
+                
+                if (categoria === 'aleatoria') {
+                    this.cartasUsadas.aleatoria.push(carta.resposta);
+                } else {
+                    this.cartasUsadas[categoria].push(carta.resposta);
+                }
+                
+                return carta;
+            }
+
+            atualizarBotoesCategoriaModal() {
+                this.botoesCategoriaModal.forEach(btn => {
+                    const categoria = btn.dataset.categoria;
+                    if (categoria !== 'aleatoria') {
+                        const cartas = cartasPorCategoria[categoria];
+                        const cartasUsadas = this.cartasUsadas[categoria].length;
+                        const totalCartas = cartas.length;
+                        
+                        if (cartasUsadas >= totalCartas) {
+                            btn.classList.add('esgotada');
+                            btn.innerHTML = `🔒 ${btn.textContent} (ESGOTADA)`;
+                        } else {
+                            btn.classList.remove('esgotada');
+                            btn.innerHTML = btn.textContent.replace(/\(.*\)/, '');
+                        }
+                    }
+                });
+            }
+
+            abrirModalCategoria() {
+                this.atualizarBotoesCategoriaModal();
+                this.modalCategoria.classList.add('ativa');
+            }
+
+            selecionarCategoriaModal(categoria) {
+                const btn = document.querySelector(`.btn-categoria-modal[data-categoria="${categoria}"]`);
+                if (btn.classList.contains('esgotada') && categoria !== 'aleatoria') {
+                    alert(`Todas as cartas de ${this.getNomeCategoria(categoria)} já foram usadas! Escolha outra categoria.`);
+                    return;
+                }
+                
+                this.categoriaAtual = categoria;
+                this.fecharModalCategoria();
+                this.proximaCarta();
+            }
+
+            getNomeCategoria(categoria) {
+                const nomes = {
+                    numeros: "Números",
+                    algebra: "Álgebra", 
+                    geometria: "Geometria",
+                    trigonometria: "Trigonometria",
+                    historia: "História",
+                    aleatoria: "Aleatória"
+                };
+                return nomes[categoria] || categoria;
+            }
+
+            iniciarRodada() {
+                if (this.categoriaAtual === 'aleatoria') {
+                    // Já tratado no obterCartaAleatoria
+                }
+                
+                this.cartaAtual = this.obterCartaAleatoria(this.categoriaAtual);
+                this.dicaAtualIndex = 0;
+                this.cartasJogadas++;
+                this.respostaRevelada = false;
+                this.ultimaRespostaErrada = false;
+                this.btnTransferir.style.display = 'none';
+                
+                if (!this.cartaAtual) {
+                    alert(`Não há mais cartas disponíveis em ${this.getNomeCategoria(this.categoriaAtual)}!`);
+                    this.abrirModalCategoria();
+                    return;
+                }
+                
+                // ATUALIZAR INDICADOR DE CATEGORIA
+                this.atualizarIndicadorCategoria(this.categoriaAtual);
+                
+                this.exibirCarta();
+                this.atualizarTimeAtual();
+                this.limparAreaResposta();
+            }
+
+            transferirPergunta() {
+                this.btnTransferir.style.display = 'none';
+                this.ultimaRespostaErrada = false;
+                this.proximoTime();
+                this.inputResposta.disabled = false;
+                this.btnTentarResposta.disabled = false;
+                this.limparAreaResposta();
+            }
+
+            inicializarEquipesPadrao() {
+                const equipesPadrao = [
+                    { nome: "Time Alpha", cor: "#e53e3e" },
+                    { nome: "Time Beta", cor: "#3182ce" },
+                    { nome: "Time Gama", cor: "#38a169" }
+                ];
+
+                equipesPadrao.forEach((equipe, index) => {
+                    this.criarElementoEquipe(equipe.nome, equipe.cor, index);
+                });
+
+                this.adicionarBotaoNovaEquipe();
+            }
+
+            criarElementoEquipe(nome, cor, index) {
+                const equipeDiv = document.createElement('div');
+                equipeDiv.className = 'equipe-config';
+                equipeDiv.innerHTML = `
+                    <h3>👥 EQUIPE ${String.fromCharCode(65 + index)}</h3>
+                    <input type="text" class="input-equipe" data-index="${index}" placeholder="Nome da equipe" value="${nome}">
+                    <input type="color" class="cor-equipe" data-index="${index}" value="${cor}">
+                    ${index >= 3 ? '<button class="btn-remover-equipe" style="background: #e53e3e; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; width: 100%; margin-top: 5px;">🗑️ Remover</button>' : ''}
+                `;
+                
+                this.containerEquipes.appendChild(equipeDiv);
+
+                if (index >= 3) {
+                    const btnRemover = equipeDiv.querySelector('.btn-remover-equipe');
+                    btnRemover.addEventListener('click', () => this.removerEquipe(index));
+                }
+            }
+
+            adicionarBotaoNovaEquipe() {
+                if (this.containerEquipes.children.length < this.maxEquipes) {
+                    const btnAdicionar = document.createElement('div');
+                    btnAdicionar.className = 'btn-adicionar-equipe';
+                    btnAdicionar.innerHTML = `
+                        <div class="icone">➕</div>
+                        <div>ADICIONAR EQUIPE</div>
+                    `;
+                    btnAdicionar.addEventListener('click', () => this.adicionarNovaEquipe());
+                    this.containerEquipes.appendChild(btnAdicionar);
+                }
+            }
+
+            adicionarNovaEquipe() {
+                const index = this.containerEquipes.children.length - 1;
+                const cores = ['#d69e2e', '#805ad5', '#ed64a6'];
+                const cor = cores[(index - 3) % cores.length];
+                
+                const btnAdicionar = this.containerEquipes.lastChild;
+                this.containerEquipes.removeChild(btnAdicionar);
+                
+                this.criarElementoEquipe(`Time ${String.fromCharCode(68 + index - 3)}`, cor, index);
+                this.adicionarBotaoNovaEquipe();
+            }
+
+            removerEquipe(index) {
+                const equipeDiv = Array.from(this.containerEquipes.children).find(child => {
+                    const input = child.querySelector('.input-equipe');
+                    return input && parseInt(input.dataset.index) === index;
+                });
+                
+                if (equipeDiv) {
+                    this.containerEquipes.removeChild(equipeDiv);
+                    this.reindexarEquipes();
+                    
+                    const btnAdicionar = this.containerEquipes.querySelector('.btn-adicionar-equipe');
+                    if (btnAdicionar) {
+                        this.containerEquipes.removeChild(btnAdicionar);
+                    }
+                    this.adicionarBotaoNovaEquipe();
+                }
+            }
+
+            reindexarEquipes() {
+                const equipesDivs = Array.from(this.containerEquipes.children).filter(child => 
+                    child.classList.contains('equipe-config')
+                );
+                
+                equipesDivs.forEach((div, newIndex) => {
+                    const input = div.querySelector('.input-equipe');
+                    const colorInput = div.querySelector('.cor-equipe');
+                    const h3 = div.querySelector('h3');
+                    
+                    if (input && colorInput && h3) {
+                        input.dataset.index = newIndex;
+                        colorInput.dataset.index = newIndex;
+                        h3.textContent = `👥 EQUIPE ${String.fromCharCode(65 + newIndex)}`;
+                        
+                        const btnRemover = div.querySelector('.btn-remover-equipe');
+                        if (btnRemover) {
+                            btnRemover.addEventListener('click', () => this.removerEquipe(newIndex));
+                        }
+                    }
+                });
+            }
+
+            configurarEquipes() {
+                this.equipes = [];
+                const inputsEquipe = this.containerEquipes.querySelectorAll('.input-equipe');
+                
+                inputsEquipe.forEach((input, index) => {
+                    const nome = input.value.trim();
+                    const corInput = this.containerEquipes.querySelector(`.cor-equipe[data-index="${input.dataset.index}"]`);
+                    const cor = corInput ? corInput.value : this.gerarCorAleatoria();
+                    
+                    if (nome) {
+                        this.equipes.push({
+                            nome: nome,
+                            cor: cor,
+                            pontos: 0,
+                            acertos: 0,
+                            erros: 0
+                        });
+                    }
+                });
+                
+                this.atualizarPlacar();
+            }
+
+            exibirCarta() {
+                this.tituloCarta.textContent = 'EU SOU...';
+                this.dicasContainer.innerHTML = '';
+                this.btnProximaDica.disabled = false;
+                this.respostaReveladaDiv.classList.remove('ativa');
+                this.btnProximaDica.innerHTML = '💡 PRÓXIMA DICA';
+                
+                this.cartaAtual.dicas.forEach((dica, index) => {
+                    const elementoDica = document.createElement('div');
+                    elementoDica.className = 'dica-apresentacao';
+                    
+                    if (index === 0) {
+                        elementoDica.classList.add('atual');
+                        elementoDica.innerHTML = `<span class="dica-numero">${index + 1}-</span> ${dica}`;
+                    } else if (index === 1) {
+                        elementoDica.classList.add('bloqueada');
+                        elementoDica.innerHTML = `<span class="dica-numero">${index + 1}-</span> ???`;
+                    } else {
+                        elementoDica.classList.add('bloqueada');
+                        elementoDica.innerHTML = `<span class="dica-numero">${index + 1}-</span> 🔒 Dica bloqueada`;
+                    }
+                    
+                    this.dicasContainer.appendChild(elementoDica);
+                });
+            }
+
+            limparAreaResposta() {
+                this.inputResposta.value = '';
+                this.resultadoTentativa.className = 'resultado-tentativa';
+                this.resultadoTentativa.style.display = 'none';
+                this.inputResposta.disabled = false;
+                this.btnTentarResposta.disabled = false;
+            }
+
+            revelarResposta() {
+                this.respostaRevelada = true;
+                this.respostaCorretaDiv.textContent = this.cartaAtual.resposta;
+                this.respostaReveladaDiv.classList.add('ativa');
+                
+                this.inputResposta.disabled = true;
+                this.btnTentarResposta.disabled = true;
+                this.btnTransferir.style.display = 'none';
+            }
+
+            atualizarTimeAtual() {
+                const timeAtual = this.equipes[this.timeAtualIndex];
+                this.timeAtual.textContent = timeAtual.nome;
+                this.timeAtual.style.backgroundColor = timeAtual.cor;
+                this.timeAtual.style.color = this.getContrastColor(timeAtual.cor);
+                
+                this.atualizarPlacar();
+            }
+
+            atualizarPlacar() {
+                this.listaPlacar.innerHTML = '';
+                
+                this.equipes.forEach((equipe, index) => {
+                    const elementoEquipe = document.createElement('div');
+                    elementoEquipe.className = 'equipe-placar';
+                    
+                    if (index === this.timeAtualIndex) {
+                        elementoEquipe.classList.add('ativa');
+                    }
+                    
+                    elementoEquipe.innerHTML = `
+                        <div class="info-equipe">
+                            <div class="cor-marcador" style="background-color: ${equipe.cor}"></div>
+                            <div class="nome-equipe">${equipe.nome}</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div class="pontos-equipe">${equipe.pontos}</div>
+                            <button class="btn-editar-placar" data-index="${index}">✏️</button>
+                        </div>
+                    `;
+                    
+                    // Evento para o botão de edição
+                    const btnEditar = elementoEquipe.querySelector('.btn-editar-placar');
+                    btnEditar.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.abrirModalEdicaoPlacar(index);
+                    });
+                    
+                    if (this.ultimaRespostaErrada) {
+                        elementoEquipe.style.cursor = 'pointer';
+                    }
+                    
+                    this.listaPlacar.appendChild(elementoEquipe);
+                });
+            }
+
+            calcularPontuacao() {
+                return Math.max(20, 100 - (this.dicaAtualIndex * 10));
+            }
+
+            proximaCarta() {
+                if (this.cartasJogadas >= this.totalRodadas) {
+                    this.finalizarJogo();
+                } else {
+                    this.rodadaAtual++;
+                    this.dicaAtualIndex = 0;
+                    this.iniciarRodada();
+                }
+            }
+
+            exibirResultadoFinal() {
+                const equipesOrdenadas = [...this.equipes].sort((a, b) => b.pontos - a.pontos);
+                const vencedor = equipesOrdenadas[0];
+                
+                document.getElementById('nomeVencedor').textContent = vencedor.nome;
+                document.getElementById('pontuacaoVencedor').textContent = `${vencedor.pontos} PONTOS`;
+                document.getElementById('areaVencedor').style.background = `linear-gradient(135deg, ${vencedor.cor}, ${this.escurecerCor(vencedor.cor)})`;
+                
+                const classificacaoFinal = document.getElementById('classificacaoFinal');
+                classificacaoFinal.innerHTML = '';
+                
+                equipesOrdenadas.forEach((equipe, index) => {
+                    const posicao = document.createElement('div');
+                    posicao.className = 'posicao';
+                    
+                    if (index === 0) posicao.classList.add('primeiro');
+                    else if (index === 1) posicao.classList.add('segundo');
+                    else if (index === 2) posicao.classList.add('terceiro');
+                    
+                    posicao.innerHTML = `
+                        <h3>${index + 1}º LUGAR</h3>
+                        <div style="display: flex; align-items: center; gap: 8px; margin: 8px 0;">
+                            <div style="width: 16px; height: 16px; border-radius: 50%; background-color: ${equipe.cor}; border: 2px solid white;"></div>
+                            <strong style="font-size: 1em;">${equipe.nome}</strong>
+                        </div>
+                        <div style="font-size: 1.3em; font-weight: bold; color: #4a5568;">${equipe.pontos} pontos</div>
+                        <div style="color: #666; margin-top: 5px; font-size: 0.9em;">${equipe.acertos} acertos</div>
+                    `;
+                    
+                    classificacaoFinal.appendChild(posicao);
+                });
+            }
+
+            novoJogo() {
+                this.telaResultadoFinal.classList.remove('ativa');
+                this.telaConfiguracao.classList.add('ativa');
+            }
+
+            fecharModalCategoria() {
+                this.modalCategoria.classList.remove('ativa');
+            }
+
+            gerarCorAleatoria() {
+                const cores = ['#e53e3e', '#3182ce', '#38a169', '#d69e2e', '#805ad5', '#ed64a6'];
+                return cores[Math.floor(Math.random() * cores.length)];
+            }
+
+            getContrastColor(hexcolor) {
+                const r = parseInt(hexcolor.substr(1, 2), 16);
+                const g = parseInt(hexcolor.substr(3, 2), 16);
+                const b = parseInt(hexcolor.substr(5, 2), 16);
+                const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+                return (yiq >= 128) ? '#000000' : '#FFFFFF';
+            }
+
+            escurecerCor(hexcolor) {
+                let r = parseInt(hexcolor.substr(1, 2), 16);
+                let g = parseInt(hexcolor.substr(3, 2), 16);
+                let b = parseInt(hexcolor.substr(5, 2), 16);
+                
+                r = Math.max(0, r - 40);
+                g = Math.max(0, g - 40);
+                b = Math.max(0, b - 40);
+                
+                return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+            }
+        }
+
+        // Inicializar o jogo quando a página carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            new PerfilMatematicoApresentacao();
+        });
+    </script>
+</body>
+</html>
